@@ -48,16 +48,25 @@ public static class Networking
     private static void AcceptNewClient(IAsyncResult ar)
     {
         Tuple<TcpListener, Action<SocketState>> tuple = (Tuple<TcpListener, Action<SocketState>>)ar.AsyncState!;
+        Socket temp;
+        SocketState state;
         try
         {
-            Socket temp = tuple.Item1.EndAcceptSocket(ar);
-            SocketState state = new SocketState(tuple.Item2, temp);
-            state.OnNetworkAction(state);
+            temp = tuple.Item1.EndAcceptSocket(ar);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            
+            state = new SocketState(tuple.Item2, e.Message);
+            state.OnNetworkAction(state);
+            return;
+
         }
+
+        state = new SocketState(tuple.Item2, temp);
+
+
+        state.OnNetworkAction(state);
+
 
         tuple.Item1.BeginAcceptSocket(AcceptNewClient, tuple);
     }
@@ -140,7 +149,23 @@ public static class Networking
 
         // TODO: Finish the remainder of the connection process as specified.
         SocketState ss = new SocketState(toCall, socket);
-        ss.TheSocket.BeginConnect(ipAddress, port, ConnectedCallback, ss);
+
+
+        try
+        {
+            IAsyncResult result = ss.TheSocket.BeginConnect(ipAddress, port, ConnectedCallback, ss);
+            bool success = result.AsyncWaitHandle.WaitOne(5000, true);
+            if (!success)
+                throw new Exception("Connection Timed out");
+        }
+        catch(Exception e)
+        {
+            ss.ErrorOccurred = true;
+            ss.ErrorMessage = e.Message;
+            ss.OnNetworkAction(ss);
+        }
+
+
     }
 
     /// <summary>
@@ -159,7 +184,18 @@ public static class Networking
     private static void ConnectedCallback(IAsyncResult ar)
     {
         SocketState ss = (SocketState)ar.AsyncState!;
-        ss.TheSocket.EndConnect(ar);
+
+        try
+        {
+            ss.TheSocket.EndConnect(ar);
+        }
+        catch(Exception e)
+        {
+            ss.ErrorOccurred = true;
+            ss.ErrorMessage = e.Message;
+            ss.OnNetworkAction(ss);
+            return;
+        }
         ss.OnNetworkAction(ss);
         
     }
@@ -182,7 +218,16 @@ public static class Networking
     /// <param name="state">The SocketState to begin receiving</param>
     public static void GetData(SocketState state)
     {
-        state.TheSocket.BeginReceive(state.buffer, 0, SocketState.BufferSize, 0, ReceiveCallback, state);
+        try
+        {
+            state.TheSocket.BeginReceive(state.buffer, 0, SocketState.BufferSize, 0, ReceiveCallback, state);
+        }
+        catch(Exception e)
+        {
+            state.ErrorOccurred = true;
+            state.ErrorMessage = e.Message;
+            state.OnNetworkAction(state);
+        }
     }
 
     /// <summary>
@@ -204,8 +249,20 @@ public static class Networking
     /// </param>
     private static void ReceiveCallback(IAsyncResult ar)
     {
+        int numBytes;
+
         SocketState ss = (SocketState)ar.AsyncState!;
-        int numBytes = ss.TheSocket.EndReceive(ar);
+        try
+        {
+            numBytes = ss.TheSocket.EndReceive(ar);
+        }
+        catch(Exception e)
+        {
+            ss.ErrorOccurred = true;
+            ss.ErrorMessage = e.Message;
+            ss.OnNetworkAction(ss);
+            return;
+        }
         string data = Encoding.UTF8.GetString(ss.buffer, 0, numBytes);
 
         // Pop lock and drop it.
@@ -226,9 +283,21 @@ public static class Networking
     public static bool Send(Socket socket, string data)
     {
         // if socket is not closed
-        byte[] bytes = Encoding.UTF8.GetBytes(data);
-        socket.BeginSend(bytes, 0, data.Length, SocketFlags.None, SendCallback, socket);
-        return true;
+        if (socket.Connected)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(data);
+            try
+            {
+                socket.BeginSend(bytes, 0, data.Length, SocketFlags.None, SendCallback, socket);
+            }
+            catch(Exception)
+            {
+                socket.Close();
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -263,9 +332,21 @@ public static class Networking
     public static bool SendAndClose(Socket socket, string data)
     {
         // if socket is not closed
-        byte[] bytes = Encoding.UTF8.GetBytes(data);
-        socket.BeginSend(bytes, 0, data.Length, SocketFlags.None, SendAndCloseCallback, socket);
-        return true;
+        if (socket.Connected)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(data);
+            try
+            {
+                socket.BeginSend(bytes, 0, data.Length, SocketFlags.None, SendAndCloseCallback, socket);
+            }
+            catch(Exception)
+            {
+                socket.Close();
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
