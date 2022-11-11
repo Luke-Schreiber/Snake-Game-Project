@@ -48,13 +48,18 @@ public static class Networking
     private static void AcceptNewClient(IAsyncResult ar)
     {
         Tuple<TcpListener, Action<SocketState>> tuple = (Tuple<TcpListener, Action<SocketState>>)ar.AsyncState!;
+        try
+        {
+            Socket temp = tuple.Item1.EndAcceptSocket(ar);
+            SocketState state = new SocketState(tuple.Item2, temp);
+            state.OnNetworkAction(state);
+        }
+        catch (Exception)
+        {
+            
+        }
 
-        Socket temp = tuple.Item1.EndAcceptSocket(ar);
-        SocketState state = new SocketState(tuple.Item2, temp);
-
-
-
-        //tuple.Item1;
+        tuple.Item1.BeginAcceptSocket(AcceptNewClient, tuple);
     }
 
     /// <summary>
@@ -62,7 +67,7 @@ public static class Networking
     /// </summary>
     public static void StopServer(TcpListener listener)
     {
-        throw new NotImplementedException();
+        listener.Stop();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -134,6 +139,8 @@ public static class Networking
         socket.NoDelay = true;
 
         // TODO: Finish the remainder of the connection process as specified.
+        SocketState ss = new SocketState(toCall, socket);
+        ss.TheSocket.BeginConnect(ipAddress, port, ConnectedCallback, ss);
     }
 
     /// <summary>
@@ -151,7 +158,10 @@ public static class Networking
     /// <param name="ar">The object asynchronously passed via BeginConnect</param>
     private static void ConnectedCallback(IAsyncResult ar)
     {
-        throw new NotImplementedException();
+        SocketState ss = (SocketState)ar.AsyncState!;
+        ss.TheSocket.EndConnect(ar);
+        ss.OnNetworkAction(ss);
+        
     }
 
 
@@ -172,7 +182,7 @@ public static class Networking
     /// <param name="state">The SocketState to begin receiving</param>
     public static void GetData(SocketState state)
     {
-        throw new NotImplementedException();
+        state.TheSocket.BeginReceive(state.buffer, 0, SocketState.BufferSize, 0, ReceiveCallback, state);
     }
 
     /// <summary>
@@ -194,7 +204,13 @@ public static class Networking
     /// </param>
     private static void ReceiveCallback(IAsyncResult ar)
     {
-        throw new NotImplementedException();
+        SocketState ss = (SocketState)ar.AsyncState!;
+        int numBytes = ss.TheSocket.EndReceive(ar);
+        string data = Encoding.UTF8.GetString(ss.buffer, 0, numBytes);
+
+        // Pop lock and drop it.
+        ss.data.Append(data);
+        ss.OnNetworkAction(ss);
     }
 
     /// <summary>
@@ -209,7 +225,10 @@ public static class Networking
     /// <returns>True if the send process was started, false if an error occurs or the socket is already closed</returns>
     public static bool Send(Socket socket, string data)
     {
-        throw new NotImplementedException();
+        // if socket is not closed
+        byte[] bytes = Encoding.UTF8.GetBytes(data);
+        socket.BeginSend(bytes, 0, data.Length, SocketFlags.None, SendCallback, socket);
+        return true;
     }
 
     /// <summary>
@@ -225,7 +244,8 @@ public static class Networking
     /// </param>
     private static void SendCallback(IAsyncResult ar)
     {
-        throw new NotImplementedException();
+        Socket socket = (Socket)ar.AsyncState!;
+        socket.EndSend(ar);
     }
 
 
@@ -242,7 +262,10 @@ public static class Networking
     /// <returns>True if the send process was started, false if an error occurs or the socket is already closed</returns>
     public static bool SendAndClose(Socket socket, string data)
     {
-        throw new NotImplementedException();
+        // if socket is not closed
+        byte[] bytes = Encoding.UTF8.GetBytes(data);
+        socket.BeginSend(bytes, 0, data.Length, SocketFlags.None, SendAndCloseCallback, socket);
+        return true;
     }
 
     /// <summary>
@@ -260,6 +283,8 @@ public static class Networking
     /// </param>
     private static void SendAndCloseCallback(IAsyncResult ar)
     {
-        throw new NotImplementedException();
+        Socket socket = (Socket)ar.AsyncState!;
+        socket.EndSend(ar);
+        socket.Close();
     }
 }
