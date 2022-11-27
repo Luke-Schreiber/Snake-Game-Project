@@ -24,5 +24,10 @@ namespace SnakeGame
             loc = new Vector2D();
             died = false;
         }
+
+        public Vector2D Loc
+        {
+            get { return loc; }
+        }
     }
 }

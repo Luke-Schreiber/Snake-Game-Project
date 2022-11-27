@@ -11,13 +11,10 @@ namespace SnakeGame
         static ArrayList snakes = new ArrayList();
         static float worldSize = 2000;
 
-        public static void setSize(float size)
-        {
-            worldSize = size;
-        }
         public static float WorldSize
         {
             get { return worldSize; }
+            set { worldSize = value; }
         }
         public static void addWall(Wall wall)
         {

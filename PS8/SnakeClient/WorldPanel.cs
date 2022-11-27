@@ -18,6 +18,7 @@ namespace SnakeGame;
 public class WorldPanel : IDrawable
 {
     private IImage wall;
+    private IImage powerup;
     private IImage background;
 
     private bool initializedForDrawing = false;
@@ -46,6 +47,7 @@ public class WorldPanel : IDrawable
     private void InitializeDrawing()
     {
         wall = loadImage( "WallSprite.png" );
+        powerup = loadImage("powerup.png");
         background = loadImage( "Background.png" );
         initializedForDrawing = true;
     }
@@ -64,18 +66,21 @@ public class WorldPanel : IDrawable
 
         // Draw the Walls
         foreach(Wall w in World.Walls)
-        {
-            DrawWalls(canvas, w, dirtyRect);
-        }
+         {
+             DrawWalls(canvas, w, dirtyRect);
+         }
 
         // Draw the Powerups
-
-        // Draw the Players
-    }
+        foreach (Powerup p in World.Powerups)
+        {
+            canvas.DrawImage(powerup, (float)(World.WorldSize / 2 + p.Loc.X - 5), (float)(World.WorldSize / 2 + p.Loc.Y - 5), 10, 10);
+        }
+            // Draw the Players
+        }
     
     private void DrawWalls(ICanvas canvas, Wall w, RectF dirtyRect)
     {
-        canvas.DrawImage(wall, (float)w.P1.X, (float)w.P1.Y, 50, 50);
-        canvas.DrawImage(wall, (float)w.P2.X, (float)w.P2.Y, 50, 50);
+        canvas.DrawImage(wall, (float)(World.WorldSize/2 + w.P1.X -25), (float)(World.WorldSize/2 + w.P1.Y - 25), 50, 50);
+        canvas.DrawImage(wall, (float)(World.WorldSize/2 + w.P2.X - 25), (float)(World.WorldSize/2 + w.P2.Y - 25), 50, 50);
     }
 }

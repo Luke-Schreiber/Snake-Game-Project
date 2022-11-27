@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnakeClient", "SnakeClient\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vector2D", "Vector2D\Vector2D.csproj", "{1E1AC518-A91F-4804-85B2-34B8B0B220C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameController", "GameController\GameController.csproj", "{F965CC81-F0E8-4A5A-A0C6-96460683F84C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameController", "GameController\GameController.csproj", "{F965CC81-F0E8-4A5A-A0C6-96460683F84C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{9DF7A9E2-028F-494F-898D-34DC4BF4EB27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{9DF7A9E2-028F-494F-898D-34DC4BF4EB27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
