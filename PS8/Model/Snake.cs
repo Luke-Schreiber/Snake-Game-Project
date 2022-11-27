@@ -42,5 +42,25 @@ namespace SnakeGame
             dc = false;
             join = false;
         }
+
+        public bool Died
+        {
+            get { return died; }
+        }
+
+        public List<Vector2D> Body
+        {
+            get { return body; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+        }
+
+        public int Score
+        {
+            get { return score; }
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace SnakeGame
         }
         public static void addSnake(Snake snake)
         {
-            snakes.Add(snakes);
+            snakes.Add(snake);
         }
         public static ArrayList Snakes
         {

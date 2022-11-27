@@ -75,6 +75,8 @@ public static class Controller
 
         lock (World.WorldState)
         {
+            World.RemoveSnakes();
+            World.RemovePowerups();
             foreach (string p in parts)
             {
                 if (p.Length == 0)
@@ -89,12 +91,10 @@ public static class Controller
                 }
                 if (p[2] == 's')
                 {
-                    World.RemoveSnakes();
                     World.addSnake(JsonConvert.DeserializeObject<Snake>(p)!);
                 }
                 if (p[2] == 'p')
                 {
-                    World.RemovePowerups();
                     World.addPowerup(JsonConvert.DeserializeObject<Powerup>(p)!);
                 }
                 state.RemoveData(0, p.Length);
