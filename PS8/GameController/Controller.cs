@@ -71,27 +71,34 @@ public static class Controller
             World.WorldSize = (float)Double.Parse(parts[1]);
         }
 
-        foreach (string p in parts)
-        {
-            if (p.Length == 0)
-                continue;
-            if (p[p.Length - 1] != '\n')
-                break;
 
-            // Deserialize
-            if (p[2] == 'w')
+
+        lock (World.WorldState)
+        {
+            foreach (string p in parts)
             {
-                World.addWall(JsonConvert.DeserializeObject<Wall>(p)!);
+                if (p.Length == 0)
+                    continue;
+                if (p[p.Length - 1] != '\n')
+                    break;
+
+                // Deserialize
+                if (p[2] == 'w')
+                {
+                    World.addWall(JsonConvert.DeserializeObject<Wall>(p)!);
+                }
+                if (p[2] == 's')
+                {
+                    World.RemoveSnakes();
+                    World.addSnake(JsonConvert.DeserializeObject<Snake>(p)!);
+                }
+                if (p[2] == 'p')
+                {
+                    World.RemovePowerups();
+                    World.addPowerup(JsonConvert.DeserializeObject<Powerup>(p)!);
+                }
+                state.RemoveData(0, p.Length);
             }
-            if (p[2] == 's')
-            {
-                World.addSnake(JsonConvert.DeserializeObject<Snake>(p)!);
-            }
-            if (p[2] == 'p')
-            {
-                World.addPowerup(JsonConvert.DeserializeObject<Powerup>(p)!);
-            }
-            state.RemoveData(0, p.Length);
         }
 
         if(UpdateFrame != null)

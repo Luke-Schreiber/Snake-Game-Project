@@ -10,6 +10,12 @@ namespace SnakeGame
         static ArrayList powerups = new ArrayList();
         static ArrayList snakes = new ArrayList();
         static float worldSize = 2000;
+        static object worldState = 0;
+
+        public static object WorldState
+        {
+            get { return worldState; }
+        }
 
         public static float WorldSize
         {
@@ -39,6 +45,14 @@ namespace SnakeGame
         public static ArrayList Snakes
         {
             get { return snakes; }
+        }
+        public static void RemoveSnakes()
+        {
+            snakes.Clear();
+        }
+        public static void RemovePowerups()
+        {
+            powerups.Clear();
         }
     }
 }
