@@ -8,6 +8,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         graphicsView.Invalidate();
+        Controller.UpdateFrame += OnFrame;
     }
 
     void OnTapped(object sender, EventArgs args)

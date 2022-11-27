@@ -9,9 +9,9 @@ namespace SnakeGame
         static ArrayList walls = new ArrayList();
         static ArrayList powerups = new ArrayList();
         static ArrayList snakes = new ArrayList();
-        static int worldSize = 2000;
+        static double worldSize = 2000;
 
-        public static void setSize(int size)
+        public static void setSize(double size)
         {
             worldSize = size;
         }

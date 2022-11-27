@@ -9,17 +9,8 @@ public static class Controller
 {
     private static SocketState? Server;
     private static string PlayerName = "player";
-
-    /*
-    public static void main(String[] args)
-    {
-        Controller controller = new Controller();
-        controller.Connect("localhost");
-
-        string userName = Console.ReadLine();
-        Networking.Send(controller.Server.TheSocket, userName);
-    }
-    */
+    private static double PlayerID;
+    public static event Action? UpdateFrame;
 
     public static void Connect(string serverAddress, string playerName)
     {
@@ -73,10 +64,12 @@ public static class Controller
         string data = state.GetData();
         string[] parts = Regex.Split(data, @"(?<=[\n])");
 
-        /*if (Double.TryParse(parts[0]))
+        if (Double.TryParse(parts[0], out double result))
         {
+            PlayerID = result;
+            World.setSize(Double.Parse(parts[1]));
+        }
 
-        }*/
         foreach (string p in parts)
         {
             if (p.Length == 0)
@@ -99,5 +92,9 @@ public static class Controller
             }
             state.RemoveData(0, p.Length);
         }
+
+        if(UpdateFrame != null)
+            UpdateFrame();
+
     }
 }
