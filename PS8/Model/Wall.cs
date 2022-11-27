@@ -23,5 +23,13 @@ namespace SnakeGame
             p1 = new Vector2D();
             p2 = new Vector2D();
         }
+
+        public Vector2D P1 {
+            get { return p1; }
+        }
+        public Vector2D P2
+        {
+            get { return p2; }
+        }
     }
 }

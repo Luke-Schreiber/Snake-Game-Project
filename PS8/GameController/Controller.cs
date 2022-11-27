@@ -45,7 +45,7 @@ public static class Controller
     private static void OnConnect(SocketState state)
     {
         Server = state;
-        state.OnNetworkAction = ReceiveData;
+        state.OnNetworkAction += ReceiveData;
         Networking.Send(Server.TheSocket, PlayerName);
 
     }
@@ -67,7 +67,7 @@ public static class Controller
         if (Double.TryParse(parts[0], out double result))
         {
             PlayerID = result;
-            World.setSize(Double.Parse(parts[1]));
+            World.setSize((float)Double.Parse(parts[1]));
         }
 
         foreach (string p in parts)

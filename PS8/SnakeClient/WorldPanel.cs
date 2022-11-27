@@ -52,12 +52,30 @@ public class WorldPanel : IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        if ( !initializedForDrawing )
+        if (!initializedForDrawing)
+        {
             InitializeDrawing();
-
+        }
         // undo previous transformations from last frame
         canvas.ResetState();
 
-        canvas.DrawImage(wall, 0, 0, wall.Width, wall.Height);
+        // Draw the background
+        canvas.DrawImage(background, 0, 0, World.WorldSize, World.WorldSize);
+
+        // Draw the Walls
+        foreach(Wall w in World.Walls)
+        {
+            DrawWalls(canvas, w, dirtyRect);
+        }
+
+        // Draw the Powerups
+
+        // Draw the Players
+    }
+    
+    private void DrawWalls(ICanvas canvas, Wall w, RectF dirtyRect)
+    {
+        canvas.DrawImage(wall, (float)w.P1.X, (float)w.P1.Y, 50, 50);
+        canvas.DrawImage(wall, (float)w.P2.X, (float)w.P2.Y, 50, 50);
     }
 }
