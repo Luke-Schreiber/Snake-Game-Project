@@ -29,5 +29,9 @@ namespace SnakeGame
         {
             get { return loc; }
         }
+        public bool Died
+        {
+            get { return died; }
+        }
     }
 }

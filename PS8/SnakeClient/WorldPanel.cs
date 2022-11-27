@@ -71,10 +71,11 @@ public class WorldPanel : IDrawable
          }
 
         // Draw the Powerups
-        foreach (Powerup p in World.Powerups)
+       /* foreach (Powerup p in World.Powerups)
         {
-            canvas.DrawImage(powerup, (float)(World.WorldSize / 2 + p.Loc.X - 5), (float)(World.WorldSize / 2 + p.Loc.Y - 5), 10, 10);
-        }
+            if (!p.Died)
+               canvas.DrawImage(powerup, (float)(World.WorldSize / 2 + p.Loc.X - 5), (float)(World.WorldSize / 2 + p.Loc.Y - 5), 10, 10);
+        }*/
             // Draw the Players
         }
     
