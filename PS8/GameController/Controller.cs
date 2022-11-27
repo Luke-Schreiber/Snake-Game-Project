@@ -7,8 +7,8 @@ using System.Text.RegularExpressions;
 namespace SnakeGame;
 public static class Controller
 {
-    private static SocketState Server;
-    private static string PlayerName;
+    private static SocketState? Server;
+    private static string PlayerName = "player";
 
     /*
     public static void main(String[] args)
@@ -25,6 +25,30 @@ public static class Controller
     {
         Networking.ConnectToServer(OnConnect, serverAddress, 11000);
         PlayerName = playerName;
+    }
+
+    public static void MoveUp()
+    {
+        if(Server != null)
+            Networking.Send(Server.TheSocket, "{\"moving\":\"up\"}\n");
+    }
+
+    public static void MoveDown()
+    {
+        if (Server != null)
+            Networking.Send(Server.TheSocket, "{\"moving\":\"down\"}\n");
+    }
+
+    public static void MoveLeft()
+    {
+        if (Server != null)
+            Networking.Send(Server.TheSocket, "{\"moving\":\"left\"}\n");
+    }
+
+    public static void MoveRight()
+    {
+        if (Server != null)
+            Networking.Send(Server.TheSocket, "{\"moving\":\"right\"}\n");
     }
 
     private static void OnConnect(SocketState state)

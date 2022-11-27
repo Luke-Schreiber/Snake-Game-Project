@@ -21,19 +21,19 @@ public partial class MainPage : ContentPage
         String text = entry.Text.ToLower();
         if (text == "w")
         {
-            // Move up
+            Controller.MoveUp();
         }
         else if (text == "a")
         {
-            // Move left
+            Controller.MoveLeft();
         }
         else if (text == "s")
         {
-            // Move down
+            Controller.MoveDown();
         }
         else if (text == "d")
         {
-            // Move right
+            Controller.MoveRight();
         }
         entry.Text = "";
     }

@@ -62,5 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameController\GameController.csproj" />
+    <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
 </Project>
