@@ -8,9 +8,15 @@ namespace SnakeGame
     {
         static ArrayList walls = new ArrayList();
         static ArrayList powerups = new ArrayList();
-        static ArrayList snakes = new ArrayList();
+        static Dictionary<int, Snake> snakes = new Dictionary<int, Snake>();
         static float worldSize = 2000;
         static object worldState = 0;
+        static Dictionary<int, int> framesSinceDeath = new Dictionary<int, int>();
+
+        public static Dictionary<int, int> FramesSinceDeath
+        {
+            get { return framesSinceDeath; }
+        }
 
         public static object WorldState
         {
@@ -40,15 +46,23 @@ namespace SnakeGame
         }
         public static void addSnake(Snake snake)
         {
-            snakes.Add(snake);
+            if (!framesSinceDeath.ContainsKey(snake.ID))
+                framesSinceDeath.Add(snake.ID, 1);
+
+            if (snakes.ContainsKey(snake.ID))
+            {
+                if (!snake.Alive)
+                    framesSinceDeath[snake.ID]++;
+                else if (framesSinceDeath.ContainsKey(snake.ID))            
+                    framesSinceDeath[snake.ID] = 0;
+
+                snakes.Remove(snake.ID);
+            }
+            snakes.Add(snake.ID, snake);
         }
-        public static ArrayList Snakes
+        public static Dictionary<int, Snake> Snakes
         {
             get { return snakes; }
-        }
-        public static void RemoveSnakes()
-        {
-            snakes.Clear();
         }
         public static void RemovePowerups()
         {

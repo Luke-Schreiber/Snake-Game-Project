@@ -57,6 +57,12 @@
 	  <EmbeddedResource Include="Resources\Images\WallSprite.png" />
 	  <EmbeddedResource Include="Resources\Images\powerup.png" />
 	  <EmbeddedResource Include="Resources\Images\Background.png" />
+	  <EmbeddedResource Include="Resources\Images\fire1.png" />
+	  <EmbeddedResource Include="Resources\Images\fire2.png" />
+	  <EmbeddedResource Include="Resources\Images\fire3.png" />
+	  <EmbeddedResource Include="Resources\Images\fire4.png" />
+	  <EmbeddedResource Include="Resources\Images\fire5.png" />
+	  <EmbeddedResource Include="Resources\Images\fire6.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

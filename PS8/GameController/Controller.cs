@@ -73,13 +73,13 @@ public static class Controller
         {
             PlayerID = (int)result;
             World.WorldSize = (float)Double.Parse(parts[1]);
+            parts = parts.Skip(2).ToArray<string>();
         }
 
 
 
         lock (World.WorldState)
         {
-            World.RemoveSnakes();
             World.RemovePowerups();
             foreach (string p in parts)
             {

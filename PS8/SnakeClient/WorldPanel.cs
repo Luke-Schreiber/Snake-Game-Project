@@ -20,7 +20,12 @@ public class WorldPanel : IDrawable
     private IImage wall;
     private IImage powerup;
     private IImage background;
-    private IImage explosion;
+    private IImage fire1;
+    private IImage fire2;
+    private IImage fire3;
+    private IImage fire4;
+    private IImage fire5;
+    private IImage fire6;
 
     private bool initializedForDrawing = false;
 
@@ -28,6 +33,7 @@ public class WorldPanel : IDrawable
     private int SnakeWidth = 10;
     private int PowerWidth = 16;
     private int ViewSize = 900;
+    private int ExplosionFrame = 0;
 
 #if MACCATALYST
     private IImage loadImage(string name)
@@ -55,7 +61,13 @@ public class WorldPanel : IDrawable
         wall = loadImage( "WallSprite.png" );
         powerup = loadImage("powerup.png");
         background = loadImage( "Background.png" );
-        explosion = loadImage("fire1.png");
+        fire1 = loadImage("fire1.png");
+        fire2 = loadImage("fire2.png");
+        fire3 = loadImage("fire3.png");
+        fire4 = loadImage("fire4.png");
+        fire5 = loadImage("fire5.png");
+        fire6 = loadImage("fire6.png");
+
         initializedForDrawing = true;
     }
 
@@ -73,15 +85,15 @@ public class WorldPanel : IDrawable
 
         lock (World.WorldState)
         {
-            foreach (Snake s in World.Snakes)
+            
+            if (World.Snakes.ContainsKey(Controller.getID()))
             {
-                if (s.ID == Controller.getID())
-                {
-                    playerX = World.WorldSize / 2 + (float)s.Body[s.Body.Count - 1].X;
-                    playerY = World.WorldSize / 2 + (float)s.Body[s.Body.Count - 1].Y;
-                    canvas.Translate(-playerX + (ViewSize / 2), -playerY + (ViewSize / 2));
-                }
+                Snake s = World.Snakes[Controller.getID()];
+                playerX = World.WorldSize / 2 + (float)s.Body[s.Body.Count - 1].X;
+                playerY = World.WorldSize / 2 + (float)s.Body[s.Body.Count - 1].Y;
+                canvas.Translate(-playerX + (ViewSize / 2), -playerY + (ViewSize / 2));
             }
+            
 
             // Draw the background
             canvas.DrawImage(background, 0, 0, World.WorldSize, World.WorldSize);
@@ -100,13 +112,16 @@ public class WorldPanel : IDrawable
             }
 
             // Draw the Players
-            foreach (Snake s in World.Snakes)
+            foreach (var s in World.Snakes)
             {
-                if (s.Alive)
-                    DrawSnakes(canvas, s, dirtyRect);
-                if (s.Died)
-                    DeathExplosion(canvas, s, dirtyRect);
-
+                if (s.Value.Alive)
+                {
+                    DrawSnakes(canvas, s.Value, dirtyRect);
+                }
+                else if (!s.Value.Alive)
+                {
+                    DeathExplosion(canvas, s.Value, dirtyRect);
+                }
             }
         }
     }
@@ -157,10 +172,76 @@ public class WorldPanel : IDrawable
 
     private void DeathExplosion(ICanvas canvas, Snake s, RectF dirtyRect)
     {
-        for (int i = 0; i < s.Body.Count; i++)
+        for (int i = 1; i < s.Body.Count; i++)
         {
-            canvas.DrawImage(explosion,(float)(World.WorldSize / 2 + s.Body[i].X), (float)(World.WorldSize / 2 + s.Body[i].Y), 40, 40);
+
+            if (World.FramesSinceDeath[s.ID] < 5)
+            {
+                //canvas.DrawImage(fire1, (float)(World.WorldSize / 2 + s.Body[i].X - 20), (float)(World.WorldSize / 2 + s.Body[i].Y - 20), 40, 40);
+                ExplosionsInMiddle(canvas, s.Body[i], s.Body[i - 1], fire1, dirtyRect);
+            }
+            else if (World.FramesSinceDeath[s.ID] < 10)
+            {
+                ExplosionsInMiddle(canvas, s.Body[i], s.Body[i - 1], fire2, dirtyRect);
+            }
+            //canvas.DrawImage(fire2, (float)(World.WorldSize / 2 + s.Body[i].X - 20), (float)(World.WorldSize / 2 + s.Body[i].Y - 20), 40, 40);
+            else if (World.FramesSinceDeath[s.ID] < 15)
+            {
+                ExplosionsInMiddle(canvas, s.Body[i], s.Body[i - 1], fire3, dirtyRect);
+            }
+            //canvas.DrawImage(fire3, (float)(World.WorldSize / 2 + s.Body[i].X - 20), (float)(World.WorldSize / 2 + s.Body[i].Y - 20), 40, 40);
+            else if (World.FramesSinceDeath[s.ID] < 20)
+            {
+                ExplosionsInMiddle(canvas, s.Body[i], s.Body[i - 1], fire4, dirtyRect);
+            }
+            //canvas.DrawImage(fire4, (float)(World.WorldSize / 2 + s.Body[i].X - 20), (float)(World.WorldSize / 2 + s.Body[i].Y - 20), 40, 40);
+            else if (World.FramesSinceDeath[s.ID] < 25)
+            {
+                ExplosionsInMiddle(canvas, s.Body[i], s.Body[i - 1], fire5, dirtyRect);
+            }
+            //canvas.DrawImage(fire5, (float)(World.WorldSize / 2 + s.Body[i].X - 20), (float)(World.WorldSize / 2 + s.Body[i].Y - 20), 40, 40);
+            else if (World.FramesSinceDeath[s.ID] < 30)
+            {
+                ExplosionsInMiddle(canvas, s.Body[i], s.Body[i - 1], fire6, dirtyRect);
+            }
+            //canvas.DrawImage(fire6, (float)(World.WorldSize / 2 + s.Body[i].X - 20), (float)(World.WorldSize / 2 + s.Body[i].Y - 20), 40, 40);
+            
         }
     }
-    
+
+    private void ExplosionsInMiddle(ICanvas canvas, Vector2D p1, Vector2D p2, IImage image, RectF dirtyRect)
+    {
+        //vertical up case
+        if (p1.X - p2.X == 0 && p1.Y < p2.Y)
+        {
+            for (double i = p1.Y; i < p2.Y; i+= 20)
+            {
+                canvas.DrawImage(image, (float)(World.WorldSize / 2 + p1.X - 20), (float)(World.WorldSize / 2 + i - 20), 40, 40);
+            }
+        }
+        //vertical down case
+        if (p1.X - p2.X == 0 && p1.Y > p2.Y)
+        {
+            for (double i = p1.Y; i > p2.Y; i -= 20)
+            {
+                canvas.DrawImage(image, (float)(World.WorldSize / 2 + p1.X - 20), (float)(World.WorldSize / 2 + i - 20), 40, 40);
+            }
+        }
+        //horizontal right case
+        if (p1.Y - p2.Y == 0 && p1.X > p2.X)
+        {
+            for (double i = p1.X; i > p2.X; i -= 20)
+            {
+                canvas.DrawImage(image, (float)(World.WorldSize / 2 + i - 20), (float)(World.WorldSize / 2 + p1.Y - 20), 40, 40);
+            }
+        }
+        //horizontal left case
+        if (p1.Y - p2.Y == 0 && p1.X < p2.X)
+        {
+            for (double i = p1.X; i < p2.X; i += 20)
+            {
+                canvas.DrawImage(image, (float)(World.WorldSize / 2 + i - 20), (float)(World.WorldSize / 2 + p1.Y - 20), 40, 40);
+            }
+        }
+    }
 }
