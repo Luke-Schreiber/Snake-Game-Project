@@ -8,6 +8,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         graphicsView.Invalidate();
+        // makes OnFrame the eventhandler for when the controller says it is time for the view to update
         Controller.UpdateFrame += OnFrame;
     }
 
