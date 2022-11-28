@@ -24,6 +24,20 @@ namespace SnakeGame
         // that play when a snake dies
         static Dictionary<int, int> framesSinceDeath = new Dictionary<int, int>();
 
+        // A dictionary of snake IDs and when the snake joined, represented by an order number.
+        static Dictionary<int, int> snakeOrder = new Dictionary<int, int>();
+
+        // Amount of snakes drawn since the player joined.
+        static int snakesSinceJoined = 0;
+
+        /// <summary>
+        /// Simple way to get the Dictionary containing the snakeOrder counters for all the snakes in the world
+        /// </summary>
+        public static Dictionary<int, int> SnakeOrder
+        {
+            get { return snakeOrder; }
+        }
+
         /// <summary>
         /// Simple way to get the Dictionary containing the framesSinceDeath counters for all the snakes in the world
         /// </summary>
@@ -107,6 +121,13 @@ namespace SnakeGame
 
             // Adds a snake to the dictionary saving them all
             snakes.Add(snake.ID, snake);
+
+            // Adds a snake to the order dictionary saving them all, if it isn't in there already.
+            if (!snakeOrder.ContainsKey(snake.ID))
+            {
+                snakeOrder.Add(snake.ID, snakesSinceJoined);
+                snakesSinceJoined++;
+            }
         }
         /// <summary>
         /// Way to get the Dictionary of snakes so that a snake can be found when needed

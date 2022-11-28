@@ -33,7 +33,6 @@ public class WorldPanel : IDrawable
     private int SnakeWidth = 10;
     private int PowerWidth = 16;
     private int ViewSize = 900;
-    private int ExplosionFrame = 0;
 
 #if MACCATALYST
     private IImage loadImage(string name)
@@ -171,7 +170,26 @@ public class WorldPanel : IDrawable
     /// <param name="dirtyRect"></param>
     private void DrawSnakes(ICanvas canvas, Snake s, RectF dirtyRect)
     {
-        canvas.FillColor = Colors.Red;
+        int order = World.SnakeOrder[s.ID]%8;
+
+        if (order == 0)
+            canvas.FillColor = Colors.Red;
+        else if (order == 1)
+            canvas.FillColor = Colors.Coral;
+        else if (order == 2)
+            canvas.FillColor = Colors.Teal;
+        else if (order == 3)
+            canvas.FillColor = Colors.Yellow;
+        else if (order == 4)
+            canvas.FillColor = Colors.Pink;
+        else if (order == 5)
+            canvas.FillColor = Colors.Purple;
+        else if (order == 6)
+            canvas.FillColor = Colors.DimGray;
+        else if (order == 7)
+            canvas.FillColor = Colors.Azure;
+        else if (order == 8)
+            canvas.FillColor = Colors.PeachPuff;
 
         // for each vertex in a snakes body, draw it and then draw a rectangle connection back to the previous vertex
         for (int i = 0; i < s.Body.Count; i++)
