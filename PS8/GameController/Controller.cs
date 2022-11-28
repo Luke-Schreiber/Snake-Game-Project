@@ -9,9 +9,13 @@ public static class Controller
 {
     private static SocketState? Server;
     private static string PlayerName = "player";
-    private static double PlayerID;
+    private static int PlayerID;
     public static event Action? UpdateFrame;
 
+    public static int getID()
+    {
+        return PlayerID;
+    }
     public static void Connect(string serverAddress, string playerName)
     {
         Networking.ConnectToServer(OnConnect, serverAddress, 11000);
@@ -67,7 +71,7 @@ public static class Controller
 
         if (Double.TryParse(parts[0], out double result))
         {
-            PlayerID = result;
+            PlayerID = (int)result;
             World.WorldSize = (float)Double.Parse(parts[1]);
         }
 

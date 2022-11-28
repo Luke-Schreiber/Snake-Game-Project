@@ -20,12 +20,14 @@ public class WorldPanel : IDrawable
     private IImage wall;
     private IImage powerup;
     private IImage background;
+    private IImage explosion;
 
     private bool initializedForDrawing = false;
 
     private int WallWidth = 50;
     private int SnakeWidth = 10;
     private int PowerWidth = 16;
+    private int ViewSize = 900;
 
 #if MACCATALYST
     private IImage loadImage(string name)
@@ -53,6 +55,7 @@ public class WorldPanel : IDrawable
         wall = loadImage( "WallSprite.png" );
         powerup = loadImage("powerup.png");
         background = loadImage( "Background.png" );
+        explosion = loadImage("fire1.png");
         initializedForDrawing = true;
     }
 
@@ -65,16 +68,29 @@ public class WorldPanel : IDrawable
         // undo previous transformations from last frame
         canvas.ResetState();
 
-        // Draw the background
-        canvas.DrawImage(background, 0, 0, World.WorldSize, World.WorldSize);
+        float playerX;
+        float playerY;
 
-        // Draw the Walls
-        foreach (Wall w in World.Walls)
-        {
-            DrawWalls(canvas, w, dirtyRect);
-        }
         lock (World.WorldState)
         {
+            foreach (Snake s in World.Snakes)
+            {
+                if (s.ID == Controller.getID())
+                {
+                    playerX = World.WorldSize / 2 + (float)s.Body[s.Body.Count - 1].X;
+                    playerY = World.WorldSize / 2 + (float)s.Body[s.Body.Count - 1].Y;
+                    canvas.Translate(-playerX + (ViewSize / 2), -playerY + (ViewSize / 2));
+                }
+            }
+
+            // Draw the background
+            canvas.DrawImage(background, 0, 0, World.WorldSize, World.WorldSize);
+
+            // Draw the Walls
+            foreach (Wall w in World.Walls)
+            {
+                DrawWalls(canvas, w, dirtyRect);
+            }
 
             // Draw the Powerups
             foreach (Powerup p in World.Powerups)
@@ -86,8 +102,11 @@ public class WorldPanel : IDrawable
             // Draw the Players
             foreach (Snake s in World.Snakes)
             {
-                if (!s.Died)
+                if (s.Alive)
                     DrawSnakes(canvas, s, dirtyRect);
+                if (s.Died)
+                    DeathExplosion(canvas, s, dirtyRect);
+
             }
         }
     }
@@ -133,6 +152,14 @@ public class WorldPanel : IDrawable
                 if (i == s.Body.Count - 1)
                     canvas.DrawString(s.Name + ": " + s.Score, (float)(World.WorldSize / 2 + s.Body[i].X - (SnakeWidth / 2)), (float)(World.WorldSize / 2 + s.Body[i].Y - (SnakeWidth / 2)-10), HorizontalAlignment.Center);
             }
+        }
+    }
+
+    private void DeathExplosion(ICanvas canvas, Snake s, RectF dirtyRect)
+    {
+        for (int i = 0; i < s.Body.Count; i++)
+        {
+            canvas.DrawImage(explosion,(float)(World.WorldSize / 2 + s.Body[i].X), (float)(World.WorldSize / 2 + s.Body[i].Y), 40, 40);
         }
     }
     
