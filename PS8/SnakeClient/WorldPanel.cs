@@ -170,8 +170,10 @@ public class WorldPanel : IDrawable
     /// <param name="dirtyRect"></param>
     private void DrawSnakes(ICanvas canvas, Snake s, RectF dirtyRect)
     {
+        // Retrieve the current snake order from World.
         int order = World.SnakeOrder[s.ID]%8;
 
+        // Every 8 Snakes is painted with a different color.
         if (order == 0)
             canvas.FillColor = Colors.Red;
         else if (order == 1)
