@@ -49,6 +49,15 @@ namespace SnakeGame
             join = false;
         }
 
+
+        /// <summary>
+        /// Simple way to get a snakes PlayerID
+        /// </summary>
+        public bool DC
+        {
+            get { return dc; }
+        }
+
         /// <summary>
         /// Simple way to get a snakes PlayerID
         /// </summary>

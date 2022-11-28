@@ -119,8 +119,9 @@ namespace SnakeGame
                 snakes.Remove(snake.ID);
             }
 
-            // Adds a snake to the dictionary saving them all
-            snakes.Add(snake.ID, snake);
+            // Adds a snake to the dictionary saving them all, unless player has disconnected.
+            if (!snake.DC)
+                snakes.Add(snake.ID, snake);
 
             // Adds a snake to the order dictionary saving them all, if it isn't in there already.
             if (!snakeOrder.ContainsKey(snake.ID))
