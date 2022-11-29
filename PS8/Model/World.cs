@@ -30,6 +30,18 @@ namespace SnakeGame
         // Amount of snakes drawn since the player joined.
         static int snakesSinceJoined = 0;
 
+        public static void Clear()
+        {
+            ArrayList walls = new ArrayList();
+            ArrayList powerups = new ArrayList();
+            worldSize = 2000;
+            Dictionary<int, Snake> snakes = new Dictionary<int, Snake>();
+            object worldState = 0;
+            Dictionary<int, int> framesSinceDeath = new Dictionary<int, int>();
+            Dictionary<int, int> snakeOrder = new Dictionary<int, int>();
+            snakesSinceJoined = 0;
+        }
+
         /// <summary>
         /// Simple way to get the Dictionary containing the snakeOrder counters for all the snakes in the world
         /// </summary>

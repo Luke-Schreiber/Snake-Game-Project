@@ -10,6 +10,9 @@ public partial class MainPage : ContentPage
         graphicsView.Invalidate();
         // makes OnFrame the eventhandler for when the controller says it is time for the view to update
         Controller.UpdateFrame += OnFrame;
+        Controller.FailedToConnect += ConnectionFailed;
+        Controller.ConnectionLost += NetworkErrorHandler;
+        Controller.ConnectionSuccess += ConnectionSucceeded;
     }
 
     void OnTapped(object sender, EventArgs args)
@@ -40,10 +43,7 @@ public partial class MainPage : ContentPage
         entry.Text = "";
     }
 
-    private void NetworkErrorHandler()
-    {
-        DisplayAlert("Error", "Disconnected from server", "OK");
-    }
+
 
 
     /// <summary>
@@ -80,6 +80,26 @@ public partial class MainPage : ContentPage
     public void OnFrame()
     {
         Dispatcher.Dispatch( () => graphicsView.Invalidate() );
+    }
+
+    /// <summary>
+    /// Event handler for when a successful connection is made, greys out the connect button so it cant be clicked while in a lobby
+    /// </summary>
+    public void ConnectionSucceeded()
+    {
+        Dispatcher.Dispatch(() => connectButton.IsEnabled = false);
+    }
+
+    public void ConnectionFailed()
+    {
+        Dispatcher.Dispatch(() => DisplayAlert("Error", "Failed to connect to server", "OK"));
+        Dispatcher.Dispatch(() => connectButton.IsEnabled = true);
+    }
+
+    private void NetworkErrorHandler()
+    {
+        Dispatcher.Dispatch(() => connectButton.IsEnabled = true);
+        Dispatcher.Dispatch(() => DisplayAlert("Error", "Disconnected from server", "OK"));
     }
 
     private void ControlsButton_Clicked(object sender, EventArgs e)

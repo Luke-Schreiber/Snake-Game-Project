@@ -13,6 +13,7 @@ using Microsoft.Maui;
 using System.Net;
 using Font = Microsoft.Maui.Graphics.Font;
 using SizeF = Microsoft.Maui.Graphics.SizeF;
+using WinRT;
 
 namespace SnakeGame;
 public class WorldPanel : IDrawable
@@ -144,19 +145,19 @@ public class WorldPanel : IDrawable
 
         // only one of these for loops will run at a time, depending on the relative locations of the 2 wall end sections;
         // when p2 is above,below,left, or right of p1
-        for (double i = w.P1.X+WallWidth; i <= w.P2.X-WallWidth; i+=WallWidth)
+        for (double i = w.P1.X+WallWidth/2; i <= w.P2.X-WallWidth/2; i+=WallWidth)
         {
             canvas.DrawImage(wall, (float)(World.WorldSize / 2 + i - (WallWidth/2)), (float)(World.WorldSize / 2 + w.P1.Y - (WallWidth/2)), WallWidth, WallWidth);
         }
-        for (double i = w.P1.Y+WallWidth; i <= w.P2.Y-WallWidth; i += WallWidth)
+        for (double i = w.P1.Y+WallWidth/2; i <= w.P2.Y-WallWidth / 2; i += WallWidth)
         {
             canvas.DrawImage(wall, (float)(World.WorldSize / 2 + w.P2.X - (WallWidth/2)), (float)(World.WorldSize / 2 + i - (WallWidth/2)), WallWidth, WallWidth);
         }
-        for (double i = w.P1.X - WallWidth; i >= w.P2.X + WallWidth; i -= WallWidth)
+        for (double i = w.P1.X - WallWidth/2; i >= w.P2.X + WallWidth/2; i -= WallWidth)
         {
             canvas.DrawImage(wall, (float)(World.WorldSize / 2 + i - (WallWidth/2)), (float)(World.WorldSize / 2 + w.P1.Y - (WallWidth/2)), WallWidth, WallWidth);
         }
-        for (double i = w.P1.Y - WallWidth; i >= w.P2.Y + WallWidth; i -= WallWidth)
+        for (double i = w.P1.Y - WallWidth/2; i >= w.P2.Y + WallWidth/2; i -= WallWidth)
         {
             canvas.DrawImage(wall, (float)(World.WorldSize / 2 + w.P2.X - (WallWidth/2)), (float)(World.WorldSize / 2 + i - (WallWidth/2)), WallWidth, WallWidth);
         }
@@ -202,12 +203,16 @@ public class WorldPanel : IDrawable
             // draw connections back to previous vertices, with in if statement to not attempt this at the tail
             if (i != 0)
             {
-                // vertical case for when the 2 vertices are above or below eachother
-                if (s.Body[i].X - s.Body[i - 1].X == 0)
-                    canvas.FillRectangle((float)(World.WorldSize / 2 + s.Body[i].X - (SnakeWidth / 2)), (float)(World.WorldSize / 2 + s.Body[i].Y), SnakeWidth, -(float)(s.Body[i].Y - s.Body[i - 1].Y));
-                // horizontal case for when the 2 vertices are left or right of eachother
-                else
-                    canvas.FillRectangle((float)(World.WorldSize / 2 + s.Body[i].X), (float)(World.WorldSize / 2 + s.Body[i].Y - (SnakeWidth / 2)), -(float)(s.Body[i].X - s.Body[i - 1].X), SnakeWidth);
+                // if statement to make sure snakes wrap around the world correctly and a section is not drawn over the whole map
+                if (WorldWrapHelper(s.Body[i], s.Body[i-1]))
+                {
+                    // vertical case for when the 2 vertices are above or below eachother
+                    if (s.Body[i].X - s.Body[i - 1].X == 0)
+                        canvas.FillRectangle((float)(World.WorldSize / 2 + s.Body[i].X - (SnakeWidth / 2)), (float)(World.WorldSize / 2 + s.Body[i].Y), SnakeWidth, -(float)(s.Body[i].Y - s.Body[i - 1].Y));
+                    // horizontal case for when the 2 vertices are left or right of eachother
+                    else
+                        canvas.FillRectangle((float)(World.WorldSize / 2 + s.Body[i].X), (float)(World.WorldSize / 2 + s.Body[i].Y - (SnakeWidth / 2)), -(float)(s.Body[i].X - s.Body[i - 1].X), SnakeWidth);
+                }
 
                 // draws the name and score of the snake under its head
                 if (i == s.Body.Count - 1)
@@ -270,37 +275,65 @@ public class WorldPanel : IDrawable
         // at the time it died
         if (p1.X - p2.X == 0 && p1.Y < p2.Y)
         {
-            for (double i = p1.Y; i < p2.Y; i+= 20)
+            // if statement to make sure explosions are not drawn over the whole map if a snake has wrapped from side to side
+            if (WorldWrapHelper(p1, p2))
             {
-                canvas.DrawImage(image, (float)(World.WorldSize / 2 + p1.X - 20), (float)(World.WorldSize / 2 + i - 20), 40, 40);
+                for (double i = p1.Y; i < p2.Y; i += 20)
+                {
+                    canvas.DrawImage(image, (float)(World.WorldSize / 2 + p1.X - 20), (float)(World.WorldSize / 2 + i - 20), 40, 40);
+                }
             }
         }
-        //vertical down case for drawing explosions at and between two points when this snake section was moving down
+        // vertical down case for drawing explosions at and between two points when this snake section was moving down
         // at the time it died
         if (p1.X - p2.X == 0 && p1.Y > p2.Y)
         {
-            for (double i = p1.Y; i > p2.Y; i -= 20)
+            // if statement to make sure explosions are not drawn over the whole map if a snake has wrapped from side to side
+            if (WorldWrapHelper(p1, p2))
             {
-                canvas.DrawImage(image, (float)(World.WorldSize / 2 + p1.X - 20), (float)(World.WorldSize / 2 + i - 20), 40, 40);
+                for (double i = p1.Y; i > p2.Y; i -= 20)
+                {
+                    canvas.DrawImage(image, (float)(World.WorldSize / 2 + p1.X - 20), (float)(World.WorldSize / 2 + i - 20), 40, 40);
+                }
             }
         }
         // horizontal right case for drawing explosions at and between two points when this snake section was moving right
         // at the time it died
         if (p1.Y - p2.Y == 0 && p1.X > p2.X)
         {
-            for (double i = p1.X; i > p2.X; i -= 20)
+            // if statement to make sure explosions are not drawn over the whole map if a snake has wrapped from side to side
+            if (WorldWrapHelper(p1, p2))
             {
-                canvas.DrawImage(image, (float)(World.WorldSize / 2 + i - 20), (float)(World.WorldSize / 2 + p1.Y - 20), 40, 40);
+                for (double i = p1.X; i > p2.X; i -= 20)
+                {
+                    canvas.DrawImage(image, (float)(World.WorldSize / 2 + i - 20), (float)(World.WorldSize / 2 + p1.Y - 20), 40, 40);
+                }
             }
         }
         //horizontal left case for drawing explosions at and between two points when this snake section was moving right
         // at the time it died
         if (p1.Y - p2.Y == 0 && p1.X < p2.X)
         {
-            for (double i = p1.X; i < p2.X; i += 20)
+            // if statement to make sure explosions are not drawn over the whole map if a snake has wrapped from side to side
+            if (WorldWrapHelper(p1, p2))
             {
-                canvas.DrawImage(image, (float)(World.WorldSize / 2 + i - 20), (float)(World.WorldSize / 2 + p1.Y - 20), 40, 40);
+                for (double i = p1.X; i < p2.X; i += 20)
+                {
+                    canvas.DrawImage(image, (float)(World.WorldSize / 2 + i - 20), (float)(World.WorldSize / 2 + p1.Y - 20), 40, 40);
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Helper method for draw methods, used to determine if a snake has wrapped to the other side of the world and they
+    /// should not be drawn over the whole thing
+    /// </summary>
+    /// <param name="p1"></param>
+    /// <param name="p2"></param>
+    /// <returns></returns>
+    private bool WorldWrapHelper(Vector2D p1, Vector2D p2)
+    {
+        return Math.Abs(p1.X - p2.X) < World.WorldSize && Math.Abs(p1.Y - p2.Y) < World.WorldSize;
     }
 }

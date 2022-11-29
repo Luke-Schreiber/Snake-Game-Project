@@ -11,6 +11,9 @@ public static class Controller
     private static string PlayerName = "player";
     private static int PlayerID;
     public static event Action? UpdateFrame;
+    public static event Action? ConnectionLost;
+    public static event Action? FailedToConnect;
+    public static event Action? ConnectionSuccess;
 
     /// <summary>
     /// Getter for the Players given playerID so that it can be used to identify them later
@@ -27,7 +30,7 @@ public static class Controller
     /// <param name="serverAddress"></param>
     /// <param name="playerName"></param>
     public static void Connect(string serverAddress, string playerName)
-    {
+    { 
         Networking.ConnectToServer(OnConnect, serverAddress, 11000);
         PlayerName = playerName;
     }
@@ -75,10 +78,21 @@ public static class Controller
     /// <param name="state"></param>
     private static void OnConnect(SocketState state)
     {
+        if (state.ErrorOccurred)
+        {
+            if (FailedToConnect != null)
+                FailedToConnect();
+            state.TheSocket.Close();
+            return;   
+        }
+        // event to grey out the connect button if a successful connection has been made
+        if (ConnectionSuccess != null)
+            ConnectionSuccess();
+
         Server = state;
         state.OnNetworkAction = ReceiveData;
         Networking.GetData(state);
-        Networking.Send(Server.TheSocket, PlayerName);
+        Networking.Send(Server.TheSocket, PlayerName + "\n");
 
     }
 
@@ -88,11 +102,24 @@ public static class Controller
     /// <param name="state"></param>
     private static void ReceiveData(SocketState state)
     {
+        // tells the view to display a message if connection to a server is lost while playing, closes the socket, and resets the world
+        if(state.ErrorOccurred)
+        {
+            World.Clear();
+            if (ConnectionLost != null)
+                ConnectionLost();
+            state.TheSocket.Close();
+            return;
+        }
         // call method for json deserialization
         ProcessData(state);
 
         //continues loop
         Networking.GetData(state);
+
+
+
+        
     }
 
     /// <summary>
