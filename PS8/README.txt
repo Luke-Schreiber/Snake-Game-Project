@@ -18,9 +18,10 @@ Features
 
 	2. Visual Stuff
 		
-		When a snake dies an explosion animation will play over its length. Snakes can "wrap" to the other side of the
-		world by going off its edge and will be drawn correctly. There are 8 available snake colors, the first 8 players
-		will all be different colors and then there will be repeats.
+		When a snake dies an explosion animation will play over its length.
+		Snakes can "wrap" to the other side of the world by going off its edge and will be drawn correctly.
+		There are 8 available snake colors, the first 8 players will all be different colors and then there will be repeats.
+		At times, it seems if the server load is high, powerups will flicker a little.
 
 
 Design Choices
