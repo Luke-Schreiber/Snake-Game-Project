@@ -55,8 +55,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Images\WallSprite.png" />
+	  <EmbeddedResource Include="Resources\Images\spaceBlock.png" />
 	  <EmbeddedResource Include="Resources\Images\powerup.png" />
 	  <EmbeddedResource Include="Resources\Images\Background.png" />
+	  <EmbeddedResource Include="Resources\Images\lartKing.png" />
 	  <EmbeddedResource Include="Resources\Images\fire1.png" />
 	  <EmbeddedResource Include="Resources\Images\fire2.png" />
 	  <EmbeddedResource Include="Resources\Images\fire3.png" />

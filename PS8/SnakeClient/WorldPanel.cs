@@ -58,9 +58,9 @@ public class WorldPanel : IDrawable
 
     private void InitializeDrawing()
     {
-        wall = loadImage( "WallSprite.png" );
+        wall = loadImage( "spaceBlock.png" );
         powerup = loadImage("powerup.png");
-        background = loadImage( "Background.png" );
+        background = loadImage( "lartKing.png" );
         fire1 = loadImage("fire1.png");
         fire2 = loadImage("fire2.png");
         fire3 = loadImage("fire3.png");
@@ -216,7 +216,10 @@ public class WorldPanel : IDrawable
 
                 // draws the name and score of the snake under its head
                 if (i == s.Body.Count - 1)
-                    canvas.DrawString(s.Name + ": " + s.Score, (float)(World.WorldSize / 2 + s.Body[i].X - (SnakeWidth / 2)), (float)(World.WorldSize / 2 + s.Body[i].Y - (SnakeWidth / 2)-10), HorizontalAlignment.Center);
+                {
+                    canvas.FontColor = Colors.White;
+                    canvas.DrawString(s.Name + ": " + s.Score, (float)(World.WorldSize / 2 + s.Body[i].X - (SnakeWidth / 2)), (float)(World.WorldSize / 2 + s.Body[i].Y - (SnakeWidth / 2) - 10), HorizontalAlignment.Center);
+                }
             }
         }
     }

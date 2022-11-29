@@ -1,6 +1,6 @@
 Features
 	
-	1. Networking stuff
+	1. Networking
 
 		Players will be given a message saying they failed to connect to a server when this occurs.
 		They can change their entered server address and try again.
@@ -16,12 +16,15 @@ Features
 		snake.eng.utah.edu. What happens is that their old snake from the first server will be visible to them in
 		the second server. 
 
-	2. Visual Stuff
+	2. View
 		
 		When a snake dies an explosion animation will play over its length.
 		Snakes can "wrap" to the other side of the world by going off its edge and will be drawn correctly.
 		There are 8 available snake colors, the first 8 players will all be different colors and then there will be repeats.
 		At times, it seems if the server load is high, powerups will flicker a little.
+
+		For our background, we created it using Dalle image generation by OpenAI. We entered in text prompts for space themed
+		images to create our background image. Then we loaded in metal walls to fit our space theme.
 
 
 Design Choices
