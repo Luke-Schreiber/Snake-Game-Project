@@ -26,8 +26,6 @@ Features
 		For our background, we created it using Dalle image generation by OpenAI. We entered in text prompts for space themed
 		images to create our background image. Then we loaded in metal walls to fit our space theme.
 
-		When a player is connected to a server, the help and about buttons stop working, it seems like a Maui bug as we have only
-		disabled the connect button, and even if we manually re-enable help and about they still do not work after connecting.
 
 
 Design Choices
@@ -49,4 +47,7 @@ Design Choices
 		that a snake is never added to a Dictionary it currently exists in and would throw an exception. We also needed them
 		for our death animation to work properly, as it seemed the best place to store and increment our counter which tells
 		how long a snake has been dead for. One is also used in the logic to assign snakes different colors.
+	5.
+		We commented out the contents of the ContentPage_Focused method, as this method resulted in the breaking of our "about"
+		and "help" buttons and did not seem to do anything else.
 

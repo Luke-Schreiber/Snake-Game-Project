@@ -122,7 +122,7 @@ public partial class MainPage : ContentPage
 
     private void ContentPage_Focused(object sender, FocusEventArgs e)
     {
-        if (!connectButton.IsEnabled)
-            keyboardHack.Focus();
+        //if (!connectButton.IsEnabled)
+            //keyboardHack.Focus();
     }
 }
