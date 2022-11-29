@@ -26,6 +26,9 @@ Features
 		For our background, we created it using Dalle image generation by OpenAI. We entered in text prompts for space themed
 		images to create our background image. Then we loaded in metal walls to fit our space theme.
 
+		When a player is connected to a server, the help and about buttons stop working, it seems like a Maui bug as we have only
+		disabled the connect button, and even if we manually re-enable help and about they still do not work after connecting.
+
 
 Design Choices
 
