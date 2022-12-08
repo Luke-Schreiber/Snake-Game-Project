@@ -19,19 +19,19 @@ namespace SnakeGame
         [JsonProperty]
         string name;
         [JsonProperty]
-        List<Vector2D> body;
+        public List<Vector2D> body;
         [JsonProperty]
-        Vector2D dir;
+        public Vector2D dir;
         [JsonProperty]
         int score;
         [JsonProperty]
         bool died;
         [JsonProperty]
-        bool alive;
+        public bool alive;
         [JsonProperty]
         bool dc;
         [JsonProperty]
-        bool join;
+        public bool join;
 
         /// <summary>
         /// Default constructor for Json

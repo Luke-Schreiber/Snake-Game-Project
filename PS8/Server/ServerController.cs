@@ -60,6 +60,8 @@ namespace SnakeGame
             serverWorld.growth = settings.growth;
             serverWorld.maxPowerups = settings.maxPowerups;
             serverWorld.pDelay = settings.pDelay;
+            serverWorld.respawnRate = settings.RespawnRate;
+            serverWorld.MSPerFrame = settings.MSPerFrame;
 
             Console.WriteLine("Server is running");
         }
@@ -68,7 +70,6 @@ namespace SnakeGame
         {
             if (state.ErrorOccurred)
                 return;
-
 
             // change the state's network action to the 
             // receive handler so we can process data when something
@@ -92,7 +93,9 @@ namespace SnakeGame
         {
             string playerName = state.GetData().Replace("\n", "");
 
-            serverWorld.addSnake(new Snake(playerName, state.ID));
+            Snake newSnake = new Snake(playerName, state.ID);
+            newSnake.join = true;
+            serverWorld.addSnake(newSnake);
 
             state.OnNetworkAction = CommandRequest;
 
@@ -138,7 +141,20 @@ namespace SnakeGame
             serverWorld.Update();
 
             // Send to each client
-            
+
+            foreach (SocketState client in clients.Values)
+            {
+                //powerups
+                foreach (Powerup p in serverWorld.Powerups)
+                {
+                    client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p) + "\n"));
+                }
+                //snakes
+                foreach (var s in serverWorld.Snakes)
+                {
+                    client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(s.Value) + "\n"));
+                }
+            }
         }
     }
 }

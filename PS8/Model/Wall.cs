@@ -15,7 +15,7 @@ namespace SnakeGame
     [JsonObject(MemberSerialization.OptIn)]
     public class Wall
     {
-        [JsonProperty]
+        [JsonProperty(PropertyName = "wall")]
         [DataMember(Order = 0)]
         int ID;
         [JsonProperty]

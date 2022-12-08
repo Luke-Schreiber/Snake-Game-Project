@@ -44,6 +44,10 @@ namespace SnakeGame
 
         public int pDelay = 200;
 
+        public int respawnRate = 300;
+
+        public int MSPerFrame = 17;
+
 
         public World()
         {
@@ -51,8 +55,33 @@ namespace SnakeGame
 
         public void Update()
         {
+            // Snakes
+            foreach(var s in Snakes)
+            {
+                // If snake has died, then remove snake from world
+                if (s.Value.Died || s.Value.DC)
+                {
+                    //Snakes.Remove(s.Key);
+                }
 
+                // If join is true or (not alive and frames  spawn the snake and set its direction 
+                if(s.Value.join || (!s.Value.Alive && framesSinceDeath[s.Key] >= respawnRate / MSPerFrame))
+                {
+                    RespawnSnake(s.Value);
+                    s.Value.join = false;
+                }
+
+                Vector2D v = s.Value.dir * snakeSpeed;
+            }
         }
+
+        private void RespawnSnake(Snake s)
+        {
+            s.alive = true;
+            s.Body.Add(new Vector2D (-975, -975));
+            s.Body.Add(new Vector2D(-900, -900));
+        }
+
         public void Clear()
         {
             ArrayList walls = new ArrayList();
