@@ -20,7 +20,7 @@ namespace SnakeGame
             Server server = new Server();
             server.StartServer();
 
-            Console.Read();
+            server.FrameLoop();
         }
 
         public Server()
@@ -51,8 +51,15 @@ namespace SnakeGame
             foreach (Wall w in settings.Walls)
             {
                 buildWalls.Append(JsonConvert.SerializeObject(w) + "\n");
+                serverWorld.addWall(w);
             }
             wallSettings = buildWalls.ToString();
+
+            serverWorld.snakeSpeed = settings.snakeSpeed;
+            serverWorld.startLength = settings.startLength;
+            serverWorld.growth = settings.growth;
+            serverWorld.maxPowerups = settings.maxPowerups;
+            serverWorld.pDelay = settings.pDelay;
 
             Console.WriteLine("Server is running");
         }
@@ -111,6 +118,27 @@ namespace SnakeGame
 
         }
 
+        private void FrameLoop()
+        {
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            while (true)
+            {
+                while(watch.ElapsedMilliseconds < settings.MSPerFrame)
+                {}
+                watch.Restart();
+                Update();
+            }
+            
+        }
 
+        private void Update()
+        {
+            // Update the world
+            serverWorld.Update();
+
+            // Send to each client
+            
+        }
     }
 }

@@ -33,9 +33,25 @@ namespace SnakeGame
         // Amount of snakes drawn since the player joined.
         int snakesSinceJoined = 0;
 
+        // Server side variables
+        public int snakeSpeed = 3;
+
+        public int startLength = 120;
+
+        public int growth = 12;
+
+        public int maxPowerups = 20;
+
+        public int pDelay = 200;
+
 
         public World()
         {
+        }
+
+        public void Update()
+        {
+
         }
         public void Clear()
         {
