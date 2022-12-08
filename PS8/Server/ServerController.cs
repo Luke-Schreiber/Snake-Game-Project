@@ -1,28 +1,50 @@
 ﻿using NetworkUtil;
+using Newtonsoft.Json;
+using Server;
 using System.Net.WebSockets;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Xml;
 
 namespace SnakeGame
 {
     class Server
     {
         private Dictionary<long, SocketState> clients;
-        private static World serverWorld;
+        private World serverWorld;
+        private GameSettings? settings;
+        private string wallSettings;
 
         public static void Main(string[] args)
         {
             Server server = new Server();
             server.StartServer();
+
+            Console.Read();
         }
 
         public Server()
         {
             clients = new Dictionary<long, SocketState>();
+            serverWorld = new World();
         }
 
         public void StartServer()
         {
             // This begins an "event loop"
             Networking.StartServer(NewPlayerConnected, 11000);
+
+            DataContractSerializer ser = new DataContractSerializer(typeof(GameSettings));
+            XmlReader reader = XmlReader.Create("GameSettings.xml");
+            settings = (GameSettings)ser.ReadObject(reader);
+
+            StringBuilder buildWalls = new StringBuilder();
+
+            foreach (Wall w in settings.Walls)
+            {
+                buildWalls.Append(JsonConvert.SerializeObject(w) + "\n");
+            }
+            wallSettings = buildWalls.ToString();
 
             Console.WriteLine("Server is running");
         }
@@ -32,12 +54,6 @@ namespace SnakeGame
             if (state.ErrorOccurred)
                 return;
 
-            // Save the client state
-            // Need to lock here because clients can disconnect at any time
-            lock (clients)
-            {
-                clients[state.ID] = state;
-            }
 
             // change the state's network action to the 
             // receive handler so we can process data when something
@@ -59,7 +75,32 @@ namespace SnakeGame
          */
         private void Handshake(SocketState state)
         {
-            state.GetData
+            string playerName = state.GetData().Replace("\n", "");
+
+            serverWorld.addSnake(new Snake(playerName, state.ID));
+
+            state.OnNetworkAction = CommandRequest;
+
+            string startUp = "" + state.ID + "\n" + settings.UniverseSize + "\n" + wallSettings;
+
+
+            state.TheSocket.Send(Encoding.ASCII.GetBytes(startUp.ToString()));
+
+            // Save the client state
+            // Need to lock here because clients can disconnect at any time
+            lock (clients)
+            {
+                clients[state.ID] = state;
+            }
+
+            Console.WriteLine("Player: " + playerName + " has connected");
+
+            Networking.GetData(state);
+        }
+
+        private void CommandRequest(SocketState state)
+        {
+
         }
 
 

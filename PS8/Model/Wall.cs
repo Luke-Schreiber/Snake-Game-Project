@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,14 +11,18 @@ namespace SnakeGame
     /// <summary>
     /// Class representing Wall objects with the fields provided and opted in as JsonProperties
     /// </summary>
+    [DataContract(Namespace = "")]
     [JsonObject(MemberSerialization.OptIn)]
     public class Wall
     {
         [JsonProperty]
-        int wall;
+        [DataMember(Order = 0)]
+        int ID;
         [JsonProperty]
+        [DataMember(Order = 1)]
         Vector2D p1;
         [JsonProperty]
+        [DataMember(Order = 2)]
         Vector2D p2;
         
         /// <summary>
@@ -25,7 +30,7 @@ namespace SnakeGame
         /// </summary>
         public Wall()
         {
-            wall = 0;
+            ID = 0;
             p1 = new Vector2D();
             p2 = new Vector2D();
         }

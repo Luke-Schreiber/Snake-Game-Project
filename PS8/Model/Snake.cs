@@ -49,6 +49,24 @@ namespace SnakeGame
             join = false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="playerID"></param>
+        public Snake(string playerName, long playerID)
+        {
+            snake = (int)playerID;
+            name = playerName;
+            body = new List<Vector2D>();
+            dir = new Vector2D();
+            score = 0;
+            died = false;
+            alive = false;
+            dc = false;
+            join = false;
+        }
+
 
         /// <summary>
         /// Simple way to get a snakes PlayerID

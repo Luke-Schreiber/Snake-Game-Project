@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 using System.Xml.Linq;
 
 namespace SnakeGame
@@ -12,6 +14,7 @@ namespace SnakeGame
         //Helpful things for a world to have saved
         ArrayList walls = new ArrayList();
         ArrayList powerups = new ArrayList();
+
         float worldSize = 2000;
 
         //Dictionary used for snakes so that they can be quickly found using their ID

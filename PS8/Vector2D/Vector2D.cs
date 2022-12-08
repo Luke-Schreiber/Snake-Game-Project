@@ -3,6 +3,8 @@
 // University of Utah
 
 using System;
+using System.Runtime.Serialization;
+using System.Xml.Linq;
 using Newtonsoft.Json;
 
 namespace SnakeGame
@@ -10,11 +12,14 @@ namespace SnakeGame
     /// <summary>
     /// A class to represent a 2D Vector in space
     /// </summary>
+    [DataContract(Namespace = "")]
     public class Vector2D
     {
         [JsonProperty]
+        [DataMember(Name = "x", Order = 0)]
         public double X { get; set; }
         [JsonProperty]
+        [DataMember(Name = "y", Order = 1)]
         public double Y { get; set; }
 
         /// <summary>
