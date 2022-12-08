@@ -35,7 +35,15 @@ namespace SnakeGame
             Networking.StartServer(NewPlayerConnected, 11000);
 
             DataContractSerializer ser = new DataContractSerializer(typeof(GameSettings));
-            XmlReader reader = XmlReader.Create("GameSettings.xml");
+            XmlReader reader;
+            try
+            {
+                reader = XmlReader.Create("GameSettings.xml");
+            }
+            catch(Exception)
+            {
+                reader = XmlReader.Create("../../../GameSettings.xml");
+            }
             settings = (GameSettings)ser.ReadObject(reader);
 
             StringBuilder buildWalls = new StringBuilder();
