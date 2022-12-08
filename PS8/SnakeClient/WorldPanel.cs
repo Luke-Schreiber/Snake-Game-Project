@@ -35,6 +35,8 @@ public class WorldPanel : IDrawable
     private int PowerWidth = 16;
     private int ViewSize = 900;
 
+    private World World = Controller.World;
+
 #if MACCATALYST
     private IImage loadImage(string name)
     {

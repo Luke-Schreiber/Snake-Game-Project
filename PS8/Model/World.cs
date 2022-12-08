@@ -7,30 +7,34 @@ namespace SnakeGame
     /// <summary>
     /// Class representing a World object which stores all the walls, snakes, and powerups in the current world state
     /// </summary>
-    public static class World
+    public class World
     {
         //Helpful things for a world to have saved
-        static ArrayList walls = new ArrayList();
-        static ArrayList powerups = new ArrayList();
-        static float worldSize = 2000;
+        ArrayList walls = new ArrayList();
+        ArrayList powerups = new ArrayList();
+        float worldSize = 2000;
 
         //Dictionary used for snakes so that they can be quickly found using their ID
-        static Dictionary<int, Snake> snakes = new Dictionary<int, Snake>();
+        Dictionary<int, Snake> snakes = new Dictionary<int, Snake>();
 
         // An object used in the Lock that prevents drawing and Adding to the world from happening at the same time
-        static object worldState = 0;
+        object worldState = 0;
 
         // A dictionary of snake IDs and a count of framesSinceDeath for a snake, which are used to animate the explosions
         // that play when a snake dies
-        static Dictionary<int, int> framesSinceDeath = new Dictionary<int, int>();
+        Dictionary<int, int> framesSinceDeath = new Dictionary<int, int>();
 
         // A dictionary of snake IDs and when the snake joined, represented by an order number.
-        static Dictionary<int, int> snakeOrder = new Dictionary<int, int>();
+        Dictionary<int, int> snakeOrder = new Dictionary<int, int>();
 
         // Amount of snakes drawn since the player joined.
-        static int snakesSinceJoined = 0;
+        int snakesSinceJoined = 0;
 
-        public static void Clear()
+
+        public World()
+        {
+        }
+        public void Clear()
         {
             ArrayList walls = new ArrayList();
             ArrayList powerups = new ArrayList();
@@ -45,7 +49,7 @@ namespace SnakeGame
         /// <summary>
         /// Simple way to get the Dictionary containing the snakeOrder counters for all the snakes in the world
         /// </summary>
-        public static Dictionary<int, int> SnakeOrder
+        public Dictionary<int, int> SnakeOrder
         {
             get { return snakeOrder; }
         }
@@ -53,7 +57,7 @@ namespace SnakeGame
         /// <summary>
         /// Simple way to get the Dictionary containing the framesSinceDeath counters for all the snakes in the world
         /// </summary>
-        public static Dictionary<int, int> FramesSinceDeath
+        public Dictionary<int, int> FramesSinceDeath
         {
             get { return framesSinceDeath; }
         }
@@ -61,7 +65,7 @@ namespace SnakeGame
         /// <summary>
         /// Way to get the WorldState object so that both the Controller and the View can get it and use it as a lock
         /// </summary>
-        public static object WorldState
+        public object WorldState
         {
             get { return worldState; }
         }
@@ -69,7 +73,7 @@ namespace SnakeGame
         /// <summary>
         /// Way to get and set the Size of the World so the view knows how big to draw it based on server input
         /// </summary>
-        public static float WorldSize
+        public float WorldSize
         {
             get { return worldSize; }
             set { worldSize = value; }
@@ -79,14 +83,14 @@ namespace SnakeGame
         /// Method that allows the controller to add walls from the server to the world
         /// </summary>
         /// <param name="wall"></param>
-        public static void addWall(Wall wall)
+        public void addWall(Wall wall)
         {
             walls.Add(wall);
         }
         /// <summary>
         /// Way to get the ArrayList of walls in the world so they can be drawn
         /// </summary>
-        public static ArrayList Walls
+        public ArrayList Walls
         {
             get { return walls; }
         }
@@ -95,14 +99,14 @@ namespace SnakeGame
         /// Method that allows the controller to add powerups from the server to the world
         /// </summary>
         /// <param name="powerup"></param>
-        public static void addPowerup(Powerup powerup)
+        public void addPowerup(Powerup powerup)
         {
             powerups.Add(powerup);
         }
         /// <summary>
         /// Way to get the ArrayList of Powerups in the world so they can be drawn
         /// </summary>
-        public static ArrayList Powerups
+        public ArrayList Powerups
         {
             get { return powerups; }
         }
@@ -111,7 +115,7 @@ namespace SnakeGame
         /// Method that allows for the controller to add snakes from the server to the world
         /// </summary>
         /// <param name="snake"></param>
-        public static void addSnake(Snake snake)
+        public void addSnake(Snake snake)
         {
             // When a new snake arrives, adds it the the framesSinceDeath dictionary so that the death animation
             // can play when it dies
@@ -145,7 +149,7 @@ namespace SnakeGame
         /// <summary>
         /// Way to get the Dictionary of snakes so that a snake can be found when needed
         /// </summary>
-        public static Dictionary<int, Snake> Snakes
+        public Dictionary<int, Snake> Snakes
         {
             get { return snakes; }
         }
@@ -154,7 +158,7 @@ namespace SnakeGame
         /// Method to remove all currently saved powerups so that the current ones from the server can be drawn,
         /// prevents the list of powerups from becoming too large
         /// </summary>
-        public static void RemovePowerups()
+        public void RemovePowerups()
         {
             powerups.Clear();
         }

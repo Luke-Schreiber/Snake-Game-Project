@@ -10,6 +10,7 @@ public static class Controller
     private static SocketState? Server;
     private static string PlayerName = "player";
     private static int PlayerID;
+    public static World World = new World();
     public static event Action? UpdateFrame;
     public static event Action? ConnectionLost;
     public static event Action? FailedToConnect;
