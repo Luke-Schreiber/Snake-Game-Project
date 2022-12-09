@@ -96,19 +96,16 @@ namespace SnakeGame
 
             Snake newSnake = new Snake(playerName, state.ID);
             newSnake.join = true;
-            serverWorld.addSnake(newSnake);
 
             state.OnNetworkAction = CommandRequest;
 
             string startUp = "" + state.ID + "\n" + settings.UniverseSize + "\n" + wallSettings;
 
-
             state.TheSocket.Send(Encoding.ASCII.GetBytes(startUp.ToString()));
 
-            // Save the client state
-            // Need to lock here because clients can disconnect at any time
-            lock (clients)
+            lock (serverWorld)
             {
+                serverWorld.addSnake(newSnake);
                 clients[state.ID] = state;
             }
 
@@ -177,21 +174,25 @@ namespace SnakeGame
         private void Update()
         {
             // Update the world
-            serverWorld.Update();
+            lock (serverWorld)
+            {
+                serverWorld.Update();
+            
 
             // Send to each client
 
-            foreach (SocketState client in clients.Values)
-            {
-                //powerups
-                foreach (Powerup p in serverWorld.Powerups)
+                foreach (SocketState client in clients.Values)
                 {
-                    client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p) + "\n"));
-                }
-                //snakes
-                foreach (var s in serverWorld.Snakes)
-                {
-                    client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(s.Value) + "\n"));
+                    //powerups
+                    foreach (Powerup p in serverWorld.Powerups)
+                    {
+                        client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p) + "\n"));
+                    }
+                    //snakes
+                    foreach (var s in serverWorld.Snakes)
+                    {
+                        client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(s.Value) + "\n"));
+                    }
                 }
             }
         }
