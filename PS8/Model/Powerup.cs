@@ -15,11 +15,11 @@ namespace SnakeGame
     public class Powerup
     {
         [JsonProperty]
-        int power;
+        public int power;
         [JsonProperty]
-        Vector2D loc;
+        public Vector2D loc;
         [JsonProperty]
-        bool died;
+        public bool died;
 
         /// <summary>
         /// default constructor for Json

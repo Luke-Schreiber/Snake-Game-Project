@@ -23,7 +23,7 @@ namespace SnakeGame
         [JsonProperty]
         public Vector2D dir;
         [JsonProperty]
-        int score;
+        public int score;
         [JsonProperty]
         public bool died;
         [JsonProperty]
@@ -33,6 +33,7 @@ namespace SnakeGame
         [JsonProperty]
         public bool join;
         public bool dirChanged;
+        public int framesSinceEaten = 1000;
 
         /// <summary>
         /// Default constructor for Json

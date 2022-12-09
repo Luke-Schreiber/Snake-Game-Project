@@ -48,6 +48,11 @@ namespace SnakeGame
 
         public int MSPerFrame = 17;
 
+        public int framesSinceSpawn = 0;
+
+        public int randomRespawnRate = 0;
+
+        
 
         public World()
         {
@@ -55,8 +60,40 @@ namespace SnakeGame
 
         public void Update()
         {
+            // Powerups
+
+            
+            // If powerup has died, then remove it from world
+           
+
+            if (framesSinceSpawn < randomRespawnRate)
+                framesSinceSpawn++;
+            
+            else if (powerups.Count < maxPowerups)
+            {
+                Random random = new Random();
+                randomRespawnRate = (int) (random.NextDouble() * respawnRate);
+                framesSinceSpawn = 0;
+                Powerup p = new Powerup();
+                p.loc = FindSpace();
+                addPowerup(p);
+                p.power = powerups.IndexOf(p);
+            }
+
+            ArrayList RemovePowerup = new ArrayList();
+            foreach(Powerup p in powerups)
+            {
+                if (p.Died)
+                    RemovePowerup.Add(p);
+            }
+            foreach(Powerup p in RemovePowerup)
+            {
+                powerups.Remove(p);
+            }
+
+
             // Snakes
-            foreach(var s in Snakes)
+            foreach (var s in Snakes)
             {
                 // If join is true or (not alive and frames  spawn the snake and set its direction 
                 if (s.Value.join)
@@ -81,7 +118,19 @@ namespace SnakeGame
                     continue;
                 }
 
+                foreach(Powerup p in powerups)
+                {
+                    if ((s.Value.body.Last() - p.loc).Length() <= 10)
+                    {
+                       p.died = true;
 
+                       s.Value.score++;
+
+                       s.Value.framesSinceEaten = 0;
+                       // snake lengthening
+
+                    }
+                }
 
                 foreach(Wall w in Walls)
                 {
@@ -125,11 +174,12 @@ namespace SnakeGame
                 else
                 {
                     tailDist.Normalize();
-                    s.Value.body[0] += tailDist * snakeSpeed;
+
+                    if (s.Value.framesSinceEaten < growth)
+                        s.Value.framesSinceEaten++;
+                    else
+                        s.Value.body[0] += tailDist * snakeSpeed;
                 }
-
-
-          
             }
         }
 
@@ -246,6 +296,7 @@ namespace SnakeGame
         public void addPowerup(Powerup powerup)
         {
             powerups.Add(powerup);
+
         }
         /// <summary>
         /// Way to get the ArrayList of Powerups in the world so they can be drawn

@@ -19,7 +19,6 @@ namespace SnakeGame
         {
             Server server = new Server();
             server.StartServer();
-
             server.FrameLoop();
         }
 
@@ -53,6 +52,8 @@ namespace SnakeGame
                 buildWalls.Append(JsonConvert.SerializeObject(w) + "\n");
                 serverWorld.addWall(w);
             }
+
+
             wallSettings = buildWalls.ToString();
 
             serverWorld.snakeSpeed = settings.snakeSpeed;
@@ -185,7 +186,7 @@ namespace SnakeGame
                 {
                     //powerups
                     foreach (Powerup p in serverWorld.Powerups)
-                    {
+                    { 
                         client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p) + "\n"));
                     }
                     //snakes
