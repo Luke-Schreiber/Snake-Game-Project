@@ -62,6 +62,7 @@ namespace SnakeGame
                 if (s.Value.Died || s.Value.DC)
                 {
                     //Snakes.Remove(s.Key);
+                    //continue;
                 }
 
                 // If join is true or (not alive and frames  spawn the snake and set its direction 
@@ -72,14 +73,37 @@ namespace SnakeGame
                 }
 
                 Vector2D v = s.Value.dir * snakeSpeed;
+
+                if (s.Value.dirChanged)
+                {
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
+                    s.Value.dirChanged = false;
+                }
+                else
+                {
+                    s.Value.body[s.Value.body.Count-1] += v;
+                }
+
+                Vector2D tailDist = s.Value.body[1] - s.Value.body[0];
+                if (Math.Abs(tailDist.X) <= snakeSpeed && Math.Abs(tailDist.Y) <= snakeSpeed)
+                {
+                    s.Value.body.RemoveAt(0);
+                }
+                else
+                {
+                    tailDist.Normalize();
+                    s.Value.body[0] += tailDist * snakeSpeed;
+                }
+          
             }
         }
 
         private void RespawnSnake(Snake s)
         {
             s.alive = true;
-            s.Body.Add(new Vector2D (-975, -975));
-            s.Body.Add(new Vector2D(-900, -900));
+            s.dir = new Vector2D(1, 0);
+            s.Body.Add(new Vector2D (0, 0));
+            s.Body.Add(new Vector2D(200, 0));
         }
 
         public void Clear()

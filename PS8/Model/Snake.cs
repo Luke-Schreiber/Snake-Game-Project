@@ -32,6 +32,7 @@ namespace SnakeGame
         bool dc;
         [JsonProperty]
         public bool join;
+        public bool dirChanged;
 
         /// <summary>
         /// Default constructor for Json
@@ -47,7 +48,8 @@ namespace SnakeGame
             alive = false;
             dc = false;
             join = false;
-        }
+            dirChanged = false;
+    }
 
         /// <summary>
         /// 

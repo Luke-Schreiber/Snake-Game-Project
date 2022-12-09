@@ -92,6 +92,7 @@ namespace SnakeGame
         private void Handshake(SocketState state)
         {
             string playerName = state.GetData().Replace("\n", "");
+            state.RemoveData(0, state.GetData().Length);
 
             Snake newSnake = new Snake(playerName, state.ID);
             newSnake.join = true;
@@ -118,7 +119,45 @@ namespace SnakeGame
 
         private void CommandRequest(SocketState state)
         {
+            string command = state.GetData().Replace("\n", ""); ;
+            state.RemoveData(0, state.GetData().Length);
+            Snake playerSnake = serverWorld.Snakes[(int)state.ID];
 
+            if (command == "{\"moving\":\"left\"}")
+            {
+                if (!playerSnake.dir.Equals(new Vector2D(-1,0)) && !playerSnake.dir.Equals(new Vector2D(1, 0)))
+                {
+                    playerSnake.dir = new Vector2D(-1, 0);
+                    playerSnake.dirChanged = true;
+                }
+            }
+            else if (command == "{\"moving\":\"right\"}")
+            {
+                if (!playerSnake.dir.Equals(new Vector2D(-1, 0)) && !playerSnake.dir.Equals(new Vector2D(1, 0)))
+                {
+                    playerSnake.dir = new Vector2D(1, 0);
+                    playerSnake.dirChanged = true;
+                }
+            }
+            else if (command == "{\"moving\":\"down\"}")
+            {
+                if (!playerSnake.dir.Equals(new Vector2D(0, -1)) && !playerSnake.dir.Equals(new Vector2D(0, 1)))
+                {
+                    playerSnake.dir = new Vector2D(0, 1);
+                    playerSnake.dirChanged = true;
+                }
+
+            }
+            else if (command == "{\"moving\":\"up\"}")
+            {
+                if (!playerSnake.dir.Equals(new Vector2D(0, -1)) && !playerSnake.dir.Equals(new Vector2D(0,1)))
+                {
+                    playerSnake.dir = new Vector2D(0, -1);
+                    playerSnake.dirChanged = true;
+                }
+            }
+
+            Networking.GetData(state);
         }
 
         private void FrameLoop()
