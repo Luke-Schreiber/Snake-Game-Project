@@ -58,18 +58,51 @@ namespace SnakeGame
             // Snakes
             foreach(var s in Snakes)
             {
-                // If snake has died, then remove snake from world
-                if (s.Value.Died || s.Value.DC)
-                {
-                    //Snakes.Remove(s.Key);
-                    //continue;
-                }
-
                 // If join is true or (not alive and frames  spawn the snake and set its direction 
-                if(s.Value.join || (!s.Value.Alive && framesSinceDeath[s.Key] >= respawnRate / MSPerFrame))
+                if (s.Value.join)
                 {
                     RespawnSnake(s.Value);
                     s.Value.join = false;
+                }
+                // If snake has died, then remove snake from world
+                if (s.Value.Died)
+                {
+                    s.Value.died = false;
+                }
+                if(!s.Value.alive)
+                {
+                    if (framesSinceDeath[s.Key] == respawnRate)
+                    {
+                        RespawnSnake(s.Value);
+                        framesSinceDeath[s.Key] = 0;
+                    }
+                    else
+                        framesSinceDeath[s.Key]++;
+                    continue;
+                }
+
+
+
+                foreach(Wall w in Walls)
+                {
+                    if (w.P1.X < w.P2.X || w.P1.Y < w.P2.Y)
+                    {
+                        if ((s.Value.body.Last().X >= w.P1.X - 30 && s.Value.body.Last().X <= w.P2.X + 30) &&
+                            (s.Value.body.Last().Y >= w.P1.Y - 30 && s.Value.body.Last().Y <= w.P2.Y + 30))
+                        {
+                            s.Value.died = true;
+                            s.Value.alive = false;
+                        }
+                    }
+                    else
+                    {
+                        if ((s.Value.body.Last().X >= w.P2.X - 30 && s.Value.body.Last().X <= w.P1.X + 30) &&
+                            (s.Value.body.Last().Y >= w.P2.Y - 30 && s.Value.body.Last().Y <= w.P1.Y + 30))
+                        {
+                            s.Value.died = true;
+                            s.Value.alive = false;
+                        }
+                    }
                 }
 
                 Vector2D v = s.Value.dir * snakeSpeed;
@@ -94,6 +127,8 @@ namespace SnakeGame
                     tailDist.Normalize();
                     s.Value.body[0] += tailDist * snakeSpeed;
                 }
+
+
           
             }
         }
@@ -102,8 +137,45 @@ namespace SnakeGame
         {
             s.alive = true;
             s.dir = new Vector2D(1, 0);
-            s.Body.Add(new Vector2D (0, 0));
-            s.Body.Add(new Vector2D(200, 0));
+            s.body.Clear();
+            Vector2D head = FindSpace();
+            s.body.Add(head);
+            s.body.Add(new Vector2D(head.X+startLength,head.Y));
+        }
+
+        private Vector2D FindSpace()
+        {
+            bool viableloc = false;
+            int randX = 0;
+            int randY = 0;
+            while (!viableloc)
+            {
+                Random random = new Random();
+                randX = random.Next(-1* (((int)worldSize) / 2 - 50), ((int)worldSize) / 2 - 50); 
+                randY = random.Next(-1 * (((int)worldSize) / 2 - 50), ((int)worldSize) / 2 - 50); 
+                viableloc = true;
+
+                foreach (Wall w in walls)
+                {
+                    if (w.P1.X < w.P2.X || w.P1.Y < w.P2.Y)
+                    {
+                        if ((randX >= w.P1.X - 30 && randX <= w.P2.X + 30) &&
+                            (randY >= w.P1.Y - 30 && randY <= w.P2.Y + 30))
+                        {
+                            viableloc = false;
+                        }
+                    }
+                    else
+                    {
+                        if ((randX >= w.P2.X - 30 && randX <= w.P1.X + 30) &&
+                            (randY >= w.P2.Y - 30 && randY <= w.P1.Y + 30))
+                        {
+                            viableloc = false;
+                        }
+                    }
+                }
+            }
+            return new Vector2D(randX, randY);
         }
 
         public void Clear()

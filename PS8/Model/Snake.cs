@@ -25,7 +25,7 @@ namespace SnakeGame
         [JsonProperty]
         int score;
         [JsonProperty]
-        bool died;
+        public bool died;
         [JsonProperty]
         public bool alive;
         [JsonProperty]
@@ -45,7 +45,7 @@ namespace SnakeGame
             dir = new Vector2D();
             score = 0;
             died = false;
-            alive = false;
+            alive = true;
             dc = false;
             join = false;
             dirChanged = false;
