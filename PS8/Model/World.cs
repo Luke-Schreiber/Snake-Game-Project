@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 
@@ -51,7 +52,6 @@ namespace SnakeGame
         public int framesSinceSpawn = 0;
 
         public int randomRespawnRate = 0;
-
         
 
         public World()
@@ -106,7 +106,7 @@ namespace SnakeGame
                 {
                     s.Value.died = false;
                 }
-                if(!s.Value.alive)
+                if (!s.Value.alive)
                 {
                     if (framesSinceDeath[s.Key] == respawnRate)
                     {
@@ -118,21 +118,33 @@ namespace SnakeGame
                     continue;
                 }
 
-                foreach(Powerup p in powerups)
+                foreach (Powerup p in powerups)
                 {
                     if ((s.Value.body.Last() - p.loc).Length() <= 10)
                     {
-                       p.died = true;
+                        p.died = true;
 
-                       s.Value.score++;
+                        s.Value.score++;
 
-                       s.Value.framesSinceEaten = 0;
-                       // snake lengthening
+                        s.Value.framesSinceEaten = 0;
+                        // snake lengthening
 
                     }
                 }
 
-                foreach(Wall w in Walls)
+                if(s.Value.Body.Last().X >= worldSize/2 || s.Value.Body.Last().X <= -1 * worldSize / 2)
+                {
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X * -1, s.Value.Body.Last().Y));
+                    s.Value.dirChanged = true;
+                }
+
+                else if(s.Value.Body.Last().Y >= worldSize / 2 || s.Value.Body.Last().Y <= -1 * worldSize / 2)
+                {
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y * -1));
+                    s.Value.dirChanged = true;
+                }
+
+                foreach (Wall w in Walls)
                 {
                     if (w.P1.X < w.P2.X || w.P1.Y < w.P2.Y)
                     {
@@ -154,17 +166,58 @@ namespace SnakeGame
                     }
                 }
 
+                // For every other snake, loop through every vector in that othersnake and check if our head collides.
+                // For our own snake
+                foreach (var otherSnake in snakes)
+                {
+                    List<Vector2D> body = otherSnake.Value.body;
+
+                    // If the snake is not itself, detects collisions.
+                    if (otherSnake.Value != s.Value && otherSnake.Value.Alive) {
+                        snakeCollision(s.Value, body);
+                    }
+                }
+
                 Vector2D v = s.Value.dir * snakeSpeed;
 
                 if (s.Value.dirChanged)
                 {
-                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
-                    s.Value.dirChanged = false;
+                        s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
+                        s.Value.dirChanged = false;
+                    
+
+                   /* Vector2D seg = s.Value.Body[s.Value.Body.Count - 3] - s.Value.Body[s.Value.Body.Count - 2];
+                    seg.Normalize();
+                    // if its been at least four frames since our last direction was equal to 
+                    if (s.Value.framesSinceDirChange >= 4 && (seg.X * -1 == s.Value.dir.X && seg.Y * -1 == s.Value.dir.Y))
+                    {
+                        s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
+                        s.Value.dirChanged = false;
+                        s.Value.framesSinceDirChange = 0;
+                    }*/
                 }
+
                 else
                 {
-                    s.Value.body[s.Value.body.Count-1] += v;
+                    s.Value.body[s.Value.body.Count - 1] += v;
+                    s.Value.framesSinceDirChange++;
                 }
+
+                for (int i = s.Value.Body.Count - 1; i >= 1; i--)
+                {
+                    Vector2D segment = (s.Value.Body[i] - s.Value.Body[i - 1]);
+                    segment.Normalize();
+
+                    if (segment.X == s.Value.dir.X * -1 && segment.Y == s.Value.dir.Y * -1)
+                    {
+                        List<Vector2D> smallerBody = new List<Vector2D>(s.Value.Body);
+                        smallerBody.RemoveRange(i + 1, smallerBody.Count - 1 - (i));
+                        snakeCollision(s.Value, smallerBody);
+                        break;
+                    }
+                }
+            
+                
 
                 Vector2D tailDist = s.Value.body[1] - s.Value.body[0];
                 if (Math.Abs(tailDist.X) <= snakeSpeed && Math.Abs(tailDist.Y) <= snakeSpeed)
@@ -183,6 +236,34 @@ namespace SnakeGame
             }
         }
 
+        private void snakeCollision(Snake s, List<Vector2D> body)
+        {
+            // For every body segment in other snake, detects collisions.
+            for (int i = 0; i < body.Count - 1; i++)
+            {
+
+                if (body[i].X < body[i + 1].X || body[i].Y < body[i + 1].Y)
+                {
+                    if ((s.body.Last().X >= body[i].X - 10 && s.body.Last().X <= body[i + 1].X + 10) &&
+                    (s.body.Last().Y >= body[i].Y - 10 && s.body.Last().Y <= body[i + 1].Y + 10))
+                    {
+                        s.died = true;
+                        s.alive = false;
+                    }
+                }
+                else
+                {
+                    if ((s.body.Last().X >= body[i + 1].X - 10 && s.body.Last().X <= body[i].X + 10) &&
+                    (s.body.Last().Y >= body[i + 1].Y - 10 && s.body.Last().Y <= body[i].Y + 10))
+                    {
+                        s.died = true;
+                        s.alive = false;
+                    }
+                }
+
+            }
+        }
+
         private void RespawnSnake(Snake s)
         {
             s.alive = true;
@@ -191,6 +272,7 @@ namespace SnakeGame
             Vector2D head = FindSpace();
             s.body.Add(head);
             s.body.Add(new Vector2D(head.X+startLength,head.Y));
+            s.score = 0;
         }
 
         private Vector2D FindSpace()

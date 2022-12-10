@@ -4,7 +4,7 @@
 <RespawnRate>300</RespawnRate>
 <UniverseSize>2000</UniverseSize>
 <snakeSpeed>3</snakeSpeed>
-<startLength>120</startLength>
+<startLength>600</startLength>
 <growth>12</growth>
 <maxPowerups>20</maxPowerups>
 <pDelay>200</pDelay>

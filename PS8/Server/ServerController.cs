@@ -50,7 +50,7 @@ namespace SnakeGame
             foreach (Wall w in settings.Walls)
             {
                 buildWalls.Append(JsonConvert.SerializeObject(w) + "\n");
-                serverWorld.addWall(w);
+                //serverWorld.addWall(w);
             }
 
 

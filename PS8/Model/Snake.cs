@@ -34,6 +34,7 @@ namespace SnakeGame
         public bool join;
         public bool dirChanged;
         public int framesSinceEaten = 1000;
+        public int framesSinceDirChange = 0;
 
         /// <summary>
         /// Default constructor for Json
