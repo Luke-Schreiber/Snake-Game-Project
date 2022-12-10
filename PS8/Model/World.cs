@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
@@ -52,6 +53,8 @@ namespace SnakeGame
         public int framesSinceSpawn = 0;
 
         public int randomRespawnRate = 0;
+
+        private int powerUps = 0;
         
 
         public World()
@@ -77,7 +80,8 @@ namespace SnakeGame
                 Powerup p = new Powerup();
                 p.loc = FindSpace();
                 addPowerup(p);
-                p.power = powerups.IndexOf(p);
+                p.power = powerUps;
+                powerUps++;
             }
 
             ArrayList RemovePowerup = new ArrayList();
@@ -270,8 +274,8 @@ namespace SnakeGame
             s.dir = new Vector2D(1, 0);
             s.body.Clear();
             Vector2D head = FindSpace();
+            s.body.Add(new Vector2D(head.X - startLength, head.Y));
             s.body.Add(head);
-            s.body.Add(new Vector2D(head.X+startLength,head.Y));
             s.score = 0;
         }
 
@@ -283,8 +287,8 @@ namespace SnakeGame
             while (!viableloc)
             {
                 Random random = new Random();
-                randX = random.Next(-1* (((int)worldSize) / 2 - 50), ((int)worldSize) / 2 - 50); 
-                randY = random.Next(-1 * (((int)worldSize) / 2 - 50), ((int)worldSize) / 2 - 50); 
+                randX = random.Next(-1* (((int)worldSize) / 2 + (50+startLength)), ((int)worldSize) / 2 - (50 + startLength)); 
+                randY = random.Next(-1 * (((int)worldSize) / 2 + (50+startLength)), ((int)worldSize) / 2 - (50 + startLength));
                 viableloc = true;
 
                 foreach (Wall w in walls)

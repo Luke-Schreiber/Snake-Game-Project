@@ -29,7 +29,7 @@ namespace SnakeGame
         [JsonProperty]
         public bool alive;
         [JsonProperty]
-        bool dc;
+        public bool dc;
         [JsonProperty]
         public bool join;
         public bool dirChanged;

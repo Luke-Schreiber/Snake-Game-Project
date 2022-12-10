@@ -1,9 +1,12 @@
 ﻿using NetworkUtil;
 using Newtonsoft.Json;
 using Server;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace SnakeGame
@@ -14,6 +17,7 @@ namespace SnakeGame
         private World serverWorld;
         private GameSettings? settings;
         private string wallSettings;
+        private List<long> disconnectedPlayers = new List<long>();
 
         public static void Main(string[] args)
         {
@@ -70,7 +74,9 @@ namespace SnakeGame
         private void NewPlayerConnected(SocketState state)
         {
             if (state.ErrorOccurred)
+            {
                 return;
+            }
 
             // change the state's network action to the 
             // receive handler so we can process data when something
@@ -92,6 +98,16 @@ namespace SnakeGame
          */
         private void Handshake(SocketState state)
         {
+            if (state.ErrorOccurred)
+            {
+                Console.WriteLine("Client " + state.ID + " disconnected");
+                lock (serverWorld)
+                {
+                    clients.Remove(state.ID);
+                }
+                return;
+            }
+
             string playerName = state.GetData().Replace("\n", "");
             state.RemoveData(0, state.GetData().Length);
 
@@ -117,6 +133,16 @@ namespace SnakeGame
 
         private void CommandRequest(SocketState state)
         {
+            if (state.ErrorOccurred)
+            {
+                Console.WriteLine("Client " + state.ID + " disconnected");
+                lock (serverWorld)
+                {
+                    clients.Remove(state.ID);
+                    serverWorld.Snakes.Remove((int)state.ID);
+                }
+                return;
+            }
             string command = state.GetData().Replace("\n", ""); ;
             state.RemoveData(0, state.GetData().Length);
             Snake playerSnake = serverWorld.Snakes[(int)state.ID];
@@ -177,22 +203,45 @@ namespace SnakeGame
             // Update the world
             lock (serverWorld)
             {
+                for(int i = 0; i < disconnectedPlayers.Count; i++)
+                {
+                    clients.Remove(disconnectedPlayers[i]);
+                    serverWorld.Snakes.Remove((int)disconnectedPlayers[i]);
+                }
+                disconnectedPlayers.Clear();
+
                 serverWorld.Update();
             
-
             // Send to each client
 
                 foreach (SocketState client in clients.Values)
                 {
+
                     //powerups
                     foreach (Powerup p in serverWorld.Powerups)
-                    { 
-                        client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p) + "\n"));
+                    {
+                        //client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(p) + "\n"));
+                        if (!Networking.Send(client.TheSocket, JsonConvert.SerializeObject(p) + "\n"))
+                        {
+                            if(!disconnectedPlayers.Contains(client.ID))
+                                disconnectedPlayers.Add(client.ID);
+                            break;
+                        }
+
                     }
                     //snakes
                     foreach (var s in serverWorld.Snakes)
                     {
-                        client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(s.Value) + "\n"));
+                        //client.TheSocket.Send(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(s.Value) + "\n"));
+                        if (!Networking.Send(client.TheSocket, JsonConvert.SerializeObject(s.Value) + "\n"))
+                        {
+                            serverWorld.Snakes[(int)client.ID].died = true;
+                            serverWorld.Snakes[(int)client.ID].alive = false;
+                            serverWorld.Snakes[(int)client.ID].dc = true;
+                            if (!disconnectedPlayers.Contains(client.ID))
+                                disconnectedPlayers.Add(client.ID);
+                            break;
+                        }
                     }
                 }
             }
