@@ -57,27 +57,34 @@ namespace SnakeGame
 
         private int powerUps = 0;
         
-
+        // Constructor for the world
         public World()
         {
         }
 
+        /// <summary>
+        /// Updates the state of the world, updating snake positions, powerup positions, snake collisions and powerup collisions.
+        /// Also updates deaths, wraparound, etc.
+        /// </summary>
         public void Update()
         {
-            // Powerups
-
             
-            // If powerup has died, then remove it from world
            
+            // Powerups -----------------------
 
+            // If increase the respawn frame time if less than random respawn generated time.
             if (framesSinceSpawn < randomRespawnRate)
                 framesSinceSpawn++;
             
+            // If we haven't maxed out, generate powerups.
             else if (powerups.Count < maxPowerups)
             {
+                // Create new respawn generated time and reset frames/time since last spawn
                 Random random = new Random();
                 randomRespawnRate = (int) (random.NextDouble() * respawnRate);
                 framesSinceSpawn = 0;
+
+                // Create a new powerup, set its id etc.
                 Powerup p = new Powerup();
                 p.loc = FindSpace();
                 addPowerup(p);
@@ -85,34 +92,40 @@ namespace SnakeGame
                 powerUps++;
             }
 
+            // Remove a powerup from our array by adding to removed powerups list and iterating through it.
             ArrayList RemovePowerup = new ArrayList();
+
             foreach(Powerup p in powerups)
             {
                 if (p.Died)
                     RemovePowerup.Add(p);
             }
+
             foreach(Powerup p in RemovePowerup)
             {
                 powerups.Remove(p);
             }
 
 
-            // Snakes
+            // Snakes ------------------------
+
+            // Loop through every snake and do the following.
             foreach (var s in Snakes)
             {
-                // If join is true or (not alive and frames  spawn the snake and set its direction 
+                // If just joined, respawn the snake.
                 if (s.Value.join)
                 {
                     RespawnSnake(s.Value);
                     s.Value.join = false;
                 }
-                // If snake has died, then remove snake from world
+                // If snake has died, then remove snake from world and respawn it.
                 if (s.Value.Died)
                 {
                     s.Value.died = false;
                 }
                 if (!s.Value.alive)
                 {
+                    // After the frame counter has reached the time to respawn, respawn.
                     if (framesSinceDeath[s.Key] == respawnRate)
                     {
                         RespawnSnake(s.Value);
@@ -123,26 +136,25 @@ namespace SnakeGame
                     continue;
                 }
 
+                // Loop through every powerup, kill it, increase our score, reset frames since eaten.
                 foreach (Powerup p in powerups)
                 {
                     if ((s.Value.body.Last() - p.loc).Length() <= 10)
                     {
                         p.died = true;
-
                         s.Value.score++;
-
                         s.Value.framesSinceEaten = 0;
-                        // snake lengthening
-
                     }
                 }
 
 
-
+                // Loop through every wall to check if the current snake has collided.
                 foreach (Wall w in Walls)
                 {
+                    // Check order of wall segments
                     if (w.P1.X < w.P2.X || w.P1.Y < w.P2.Y)
                     {
+                        // Checks if snake head is within range of the wall area.
                         if ((s.Value.body.Last().X >= w.P1.X - 30 && s.Value.body.Last().X <= w.P2.X + 30) &&
                             (s.Value.body.Last().Y >= w.P1.Y - 30 && s.Value.body.Last().Y <= w.P2.Y + 30))
                         {
@@ -152,6 +164,7 @@ namespace SnakeGame
                     }
                     else
                     {
+                        // Checks if snake head is within range of the wall area.
                         if ((s.Value.body.Last().X >= w.P2.X - 30 && s.Value.body.Last().X <= w.P1.X + 30) &&
                             (s.Value.body.Last().Y >= w.P2.Y - 30 && s.Value.body.Last().Y <= w.P1.Y + 30))
                         {
@@ -161,8 +174,7 @@ namespace SnakeGame
                     }
                 }
 
-                // For every other snake, loop through every vector in that othersnake and check if our head collides.
-                // For our own snake
+                // For every other snake than ourself, see if we collide with it.
                 foreach (var otherSnake in snakes)
                 {
                     List<Vector2D> body = otherSnake.Value.body;
@@ -173,58 +185,74 @@ namespace SnakeGame
                     }
                 }
 
+                // Creates a vector that is the velocity.
                 Vector2D v = s.Value.dir * snakeSpeed;
 
+                // If the current direction of snake has changed, add new segment.
                 if (s.Value.dirChanged)
                 {
                         s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
                         s.Value.dirChanged = false;
                 }
+                // Otherwise keep going straight.
                 else
                 {
                     s.Value.body[s.Value.body.Count - 1] += v;
                     s.Value.framesSinceDirChange++;
                 }
 
+                // Detects wraparounds at both the X and Y for the tail and the head vector -------------
+
+                // X value head wraparound
                 if (s.Value.Body.Last().X >= worldSize / 2 || s.Value.Body.Last().X <= -1 * worldSize / 2)
                 {
                     s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X * -1, s.Value.Body.Last().Y));
                     s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X + v.X, s.Value.Body.Last().Y));
                     
                 }
+                // Y value head wraparound
                 else if (s.Value.Body.Last().Y >= worldSize / 2 || s.Value.Body.Last().Y <= -1 * worldSize / 2)
                 {
                     s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y * -1));
                     s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y + v.Y));
                 }
+                // X value tail wraparound
                 if (s.Value.Body[0].X >= worldSize / 2 || s.Value.Body[0].X <= -1 * worldSize / 2)
                 {
                     s.Value.body.RemoveAt(0);
                 }
+                // Y value tail wraparound
                 else if (s.Value.Body[0].Y >= worldSize / 2 || s.Value.Body[0].Y <= -1 * worldSize / 2)
                 {
                     s.Value.body.RemoveAt(0);
                 }
+                // --------------
 
+                // Detects self collisions for the snake. For every segment in the snake, check if the current direction is in the opposite of another segment.
                 for (int i = s.Value.Body.Count - 1; i >= 1; i--)
                 {
+                    // Current snake segment
                     Vector2D segment = (s.Value.Body[i] - s.Value.Body[i - 1]);
                     
+                    // So long as there isn't a wraparound
                     if (!(segment.Length() >= WorldSize))
                     {
+                        // Find the direction of this vector and check if it is the opposite of current direction.
                         segment.Normalize();
                         if (segment.X == s.Value.dir.X * -1 && segment.Y == s.Value.dir.Y * -1)
                         {
+                            // Make a new list of vectors that can be collided into
                             List<Vector2D> smallerBody = new List<Vector2D>(s.Value.Body);
                             smallerBody.RemoveRange(i + 1, smallerBody.Count - 1 - (i));
+
+                            // Try collisions with this new list.
                             snakeCollision(s.Value, smallerBody);
                             break;
                         }
                     }
                 }
             
-                
-
+                // If tail catches up to segment, delete it, otherwise advance it.
                 Vector2D tailDist = s.Value.body[1] - s.Value.body[0];
                 if (Math.Abs(tailDist.X) <= snakeSpeed && Math.Abs(tailDist.Y) <= snakeSpeed)
                 {
@@ -233,7 +261,6 @@ namespace SnakeGame
                 else
                 {
                     tailDist.Normalize();
-
                     if (s.Value.framesSinceEaten < growth)
                         s.Value.framesSinceEaten++;
                     else
@@ -242,12 +269,16 @@ namespace SnakeGame
             }
         }
 
+        /// <summary>
+        /// Takes a snake and a body that the snake head can collide into. Kills snake if snake head collides into body segment.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="body"></param>
         private void snakeCollision(Snake s, List<Vector2D> body)
         {
-            // For every body segment in other snake, detects collisions.
+            // For ever body vector check if the snake head is within bounds for the body vector segment.
             for (int i = 0; i < body.Count - 1; i++)
             {
-
                 if (body[i].X < body[i + 1].X || body[i].Y < body[i + 1].Y)
                 {
                     if ((s.body.Last().X >= body[i].X - 10 && s.body.Last().X <= body[i + 1].X + 10) &&
@@ -270,8 +301,13 @@ namespace SnakeGame
             }
         }
 
+        /// <summary>
+        /// Respawns the snake in a correct space with a random direction.
+        /// </summary>
+        /// <param name="s"></param>
         private void RespawnSnake(Snake s)
         {
+            // Sets alive to true, resets body and score, and generates random correct space and direction.
             s.alive = true;
             Random random = new Random();
             int randDir = random.Next(0, 4);
@@ -279,6 +315,8 @@ namespace SnakeGame
             s.body.Clear();
             s.score = 0;
 
+
+            // Creates new snake and direction based on random number.
             if (randDir == 0)
             {
                 s.dir = new Vector2D(1, 0);
@@ -307,19 +345,27 @@ namespace SnakeGame
             
         }
 
+        /// <summary>
+        /// Finds a viable space to respawn.
+        ///
+        /// </summary>
+        /// <returns></returns>
         private Vector2D FindSpace()
         {
             bool viableloc = false;
             int randX = 0;
             int randY = 0;
+
+            // If a viable location is found return it.
             while (!viableloc)
             {
+                // Creates new random coordinates within the world.
                 Random random = new Random();
                 randX = random.Next(-1* (((int)worldSize) / 2 - (50+startLength)), ((int)worldSize) / 2 - (50 + startLength)); 
                 randY = random.Next(-1 * (((int)worldSize) / 2 - (50+startLength)), ((int)worldSize) / 2 - (50 + startLength));
-                
                 viableloc = true;
 
+                // Checks if new point has spawned in walls. If so, not a viable loc and restart.
                 foreach (Wall w in walls)
                 {
                     if (w.P1.X < w.P2.X || w.P1.Y < w.P2.Y)
@@ -340,9 +386,14 @@ namespace SnakeGame
                     }
                 }
             }
+
+            // Return viable location.
             return new Vector2D(randX, randY);
         }
 
+        /// <summary>
+        /// Clears the world.
+        /// </summary>
         public void Clear()
         {
             ArrayList walls = new ArrayList();

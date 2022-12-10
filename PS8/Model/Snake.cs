@@ -32,8 +32,14 @@ namespace SnakeGame
         public bool dc;
         [JsonProperty]
         public bool join;
+
+        // Has the snake direction changed
         public bool dirChanged;
+
+        // How many frames since this snake ate powerup
         public int framesSinceEaten = 1000;
+
+        // How many frames since the direction changed
         public int framesSinceDirChange = 0;
 
         /// <summary>
