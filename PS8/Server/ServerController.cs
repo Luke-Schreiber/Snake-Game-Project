@@ -41,11 +41,11 @@ namespace SnakeGame
             XmlReader reader;
             try
             {
-                reader = XmlReader.Create("GameSettings.xml");
+                reader = XmlReader.Create("settings.xml");
             }
             catch(Exception)
             {
-                reader = XmlReader.Create("../../../GameSettings.xml");
+                reader = XmlReader.Create("../../../settings.xml");
             }
             settings = (GameSettings)ser.ReadObject(reader);
 

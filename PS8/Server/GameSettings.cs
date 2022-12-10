@@ -21,17 +21,18 @@ namespace Server
         [DataMember(Order = 3)]
         public int UniverseSize = 2000;
         [DataMember(Order = 4)]
-        public int snakeSpeed = 3;
-        [DataMember(Order = 5)]
-        public int startLength = 120;
-        [DataMember(Order = 6)]
-        public int growth = 12;
-        [DataMember(Order = 7)]
-        public int maxPowerups = 20;
-        [DataMember(Order = 8)]
-        public int pDelay = 200;
-        [DataMember(Order = 9)]
         public List<Wall>? Walls;
+        [DataMember(Order = 5)]
+        public int snakeSpeed = 3;
+        [DataMember(Order = 6)]
+        public int startLength = 120;
+        [DataMember(Order = 7)]
+        public int growth = 12;
+        [DataMember(Order = 8)]
+        public int maxPowerups = 20;
+        [DataMember(Order = 9)]
+        public int pDelay = 200;
+
 
         public GameSettings()
         { }
