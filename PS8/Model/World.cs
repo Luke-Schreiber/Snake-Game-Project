@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -136,17 +137,7 @@ namespace SnakeGame
                     }
                 }
 
-                if(s.Value.Body.Last().X >= worldSize/2 || s.Value.Body.Last().X <= -1 * worldSize / 2)
-                {
-                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X * -1, s.Value.Body.Last().Y));
-                    s.Value.dirChanged = true;
-                }
 
-                else if(s.Value.Body.Last().Y >= worldSize / 2 || s.Value.Body.Last().Y <= -1 * worldSize / 2)
-                {
-                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y * -1));
-                    s.Value.dirChanged = true;
-                }
 
                 foreach (Wall w in Walls)
                 {
@@ -188,36 +179,47 @@ namespace SnakeGame
                 {
                         s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
                         s.Value.dirChanged = false;
-                    
-
-                   /* Vector2D seg = s.Value.Body[s.Value.Body.Count - 3] - s.Value.Body[s.Value.Body.Count - 2];
-                    seg.Normalize();
-                    // if its been at least four frames since our last direction was equal to 
-                    if (s.Value.framesSinceDirChange >= 4 && (seg.X * -1 == s.Value.dir.X && seg.Y * -1 == s.Value.dir.Y))
-                    {
-                        s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y) + v);
-                        s.Value.dirChanged = false;
-                        s.Value.framesSinceDirChange = 0;
-                    }*/
                 }
-
                 else
                 {
                     s.Value.body[s.Value.body.Count - 1] += v;
                     s.Value.framesSinceDirChange++;
                 }
 
+                if (s.Value.Body.Last().X >= worldSize / 2 || s.Value.Body.Last().X <= -1 * worldSize / 2)
+                {
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X * -1, s.Value.Body.Last().Y));
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X + v.X, s.Value.Body.Last().Y));
+                    
+                }
+                else if (s.Value.Body.Last().Y >= worldSize / 2 || s.Value.Body.Last().Y <= -1 * worldSize / 2)
+                {
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y * -1));
+                    s.Value.Body.Add(new Vector2D(s.Value.Body.Last().X, s.Value.Body.Last().Y + v.Y));
+                }
+                if (s.Value.Body[0].X >= worldSize / 2 || s.Value.Body[0].X <= -1 * worldSize / 2)
+                {
+                    s.Value.body.RemoveAt(0);
+                }
+                else if (s.Value.Body[0].Y >= worldSize / 2 || s.Value.Body[0].Y <= -1 * worldSize / 2)
+                {
+                    s.Value.body.RemoveAt(0);
+                }
+
                 for (int i = s.Value.Body.Count - 1; i >= 1; i--)
                 {
                     Vector2D segment = (s.Value.Body[i] - s.Value.Body[i - 1]);
-                    segment.Normalize();
-
-                    if (segment.X == s.Value.dir.X * -1 && segment.Y == s.Value.dir.Y * -1)
+                    
+                    if (!(segment.Length() >= WorldSize))
                     {
-                        List<Vector2D> smallerBody = new List<Vector2D>(s.Value.Body);
-                        smallerBody.RemoveRange(i + 1, smallerBody.Count - 1 - (i));
-                        snakeCollision(s.Value, smallerBody);
-                        break;
+                        segment.Normalize();
+                        if (segment.X == s.Value.dir.X * -1 && segment.Y == s.Value.dir.Y * -1)
+                        {
+                            List<Vector2D> smallerBody = new List<Vector2D>(s.Value.Body);
+                            smallerBody.RemoveRange(i + 1, smallerBody.Count - 1 - (i));
+                            snakeCollision(s.Value, smallerBody);
+                            break;
+                        }
                     }
                 }
             
@@ -271,12 +273,38 @@ namespace SnakeGame
         private void RespawnSnake(Snake s)
         {
             s.alive = true;
-            s.dir = new Vector2D(1, 0);
-            s.body.Clear();
+            Random random = new Random();
+            int randDir = random.Next(0, 4);
             Vector2D head = FindSpace();
-            s.body.Add(new Vector2D(head.X - startLength, head.Y));
-            s.body.Add(head);
+            s.body.Clear();
             s.score = 0;
+
+            if (randDir == 0)
+            {
+                s.dir = new Vector2D(1, 0);
+                s.body.Add(new Vector2D(head.X - startLength, head.Y));
+                s.body.Add(head);
+            }
+            else if (randDir == 1)
+            {
+                s.dir = new Vector2D(-1, 0);
+                s.body.Add(new Vector2D(head.X + startLength, head.Y));
+                s.body.Add(head);
+            }
+            else if (randDir == 2)
+            {
+                s.dir = new Vector2D(0, 1);
+                s.body.Add(new Vector2D(head.X, head.Y - startLength));
+                s.body.Add(head);
+            }
+            else if (randDir == 3)
+            {
+                s.dir = new Vector2D(0, -1);
+                s.body.Add(new Vector2D(head.X, head.Y + startLength));
+                s.body.Add(head);
+            }
+         
+            
         }
 
         private Vector2D FindSpace()
@@ -287,8 +315,9 @@ namespace SnakeGame
             while (!viableloc)
             {
                 Random random = new Random();
-                randX = random.Next(-1* (((int)worldSize) / 2 + (50+startLength)), ((int)worldSize) / 2 - (50 + startLength)); 
-                randY = random.Next(-1 * (((int)worldSize) / 2 + (50+startLength)), ((int)worldSize) / 2 - (50 + startLength));
+                randX = random.Next(-1* (((int)worldSize) / 2 - (50+startLength)), ((int)worldSize) / 2 - (50 + startLength)); 
+                randY = random.Next(-1 * (((int)worldSize) / 2 - (50+startLength)), ((int)worldSize) / 2 - (50 + startLength));
+                
                 viableloc = true;
 
                 foreach (Wall w in walls)

@@ -54,7 +54,7 @@ namespace SnakeGame
             foreach (Wall w in settings.Walls)
             {
                 buildWalls.Append(JsonConvert.SerializeObject(w) + "\n");
-                //serverWorld.addWall(w);
+                serverWorld.addWall(w);
             }
 
 
@@ -147,28 +147,59 @@ namespace SnakeGame
             state.RemoveData(0, state.GetData().Length);
             Snake playerSnake = serverWorld.Snakes[(int)state.ID];
 
+
+            bool currentSegCheck = (playerSnake.body.Last() - playerSnake.body[playerSnake.body.Count - 2]).Length() < 10;
+
             if (command == "{\"moving\":\"left\"}")
             {
+                
                 if (!playerSnake.dir.Equals(new Vector2D(-1,0)) && !playerSnake.dir.Equals(new Vector2D(1, 0)))
                 {
-                    playerSnake.dir = new Vector2D(-1, 0);
-                    playerSnake.dirChanged = true;
+                    if (playerSnake.body.Count == 2)
+                    {
+                        playerSnake.dir = new Vector2D(-1, 0);
+                        playerSnake.dirChanged = true;
+                    }
+
+                    else if (!(currentSegCheck && (playerSnake.body[playerSnake.body.Count - 2].X - playerSnake.body[playerSnake.body.Count - 3].X > 0)))
+                    {
+                        playerSnake.dir = new Vector2D(-1, 0);
+                        playerSnake.dirChanged = true;
+                    }
                 }
             }
             else if (command == "{\"moving\":\"right\"}")
             {
                 if (!playerSnake.dir.Equals(new Vector2D(-1, 0)) && !playerSnake.dir.Equals(new Vector2D(1, 0)))
                 {
-                    playerSnake.dir = new Vector2D(1, 0);
-                    playerSnake.dirChanged = true;
+                    if (playerSnake.body.Count == 2)
+                    {
+                        playerSnake.dir = new Vector2D(1, 0);
+                        playerSnake.dirChanged = true;
+                    }
+
+                    else if (!(currentSegCheck && (playerSnake.body[playerSnake.body.Count - 2].X - playerSnake.body[playerSnake.body.Count - 3].X < 0)))
+                    {
+                        playerSnake.dir = new Vector2D(1, 0);
+                        playerSnake.dirChanged = true;
+                    }
                 }
             }
             else if (command == "{\"moving\":\"down\"}")
             {
                 if (!playerSnake.dir.Equals(new Vector2D(0, -1)) && !playerSnake.dir.Equals(new Vector2D(0, 1)))
                 {
-                    playerSnake.dir = new Vector2D(0, 1);
-                    playerSnake.dirChanged = true;
+                    if (playerSnake.body.Count == 2)
+                    {
+                        playerSnake.dir = new Vector2D(0,1);
+                        playerSnake.dirChanged = true;
+                    }
+
+                    else if (!(currentSegCheck && (playerSnake.body[playerSnake.body.Count - 2].Y - playerSnake.body[playerSnake.body.Count - 3].Y < 0)))
+                    {
+                        playerSnake.dir = new Vector2D(0,1);
+                        playerSnake.dirChanged = true;
+                    }
                 }
 
             }
@@ -176,8 +207,17 @@ namespace SnakeGame
             {
                 if (!playerSnake.dir.Equals(new Vector2D(0, -1)) && !playerSnake.dir.Equals(new Vector2D(0,1)))
                 {
-                    playerSnake.dir = new Vector2D(0, -1);
-                    playerSnake.dirChanged = true;
+                    if (playerSnake.body.Count == 2)
+                    {
+                        playerSnake.dir = new Vector2D(0,-1);
+                        playerSnake.dirChanged = true;
+                    }
+
+                    else if (!(currentSegCheck && (playerSnake.body[playerSnake.body.Count - 2].Y - playerSnake.body[playerSnake.body.Count - 3].Y > 0)))
+                    {
+                        playerSnake.dir = new Vector2D(0,-1);
+                        playerSnake.dirChanged = true;
+                    }
                 }
             }
 
