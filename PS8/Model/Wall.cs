@@ -17,7 +17,7 @@ namespace SnakeGame
     {
         [JsonProperty(PropertyName = "wall")]
         [DataMember(Order = 0)]
-        int ID;
+        private int ID;
         [JsonProperty]
         [DataMember(Order = 1)]
         Vector2D p1;
@@ -47,6 +47,13 @@ namespace SnakeGame
         public Vector2D P2
         {
             get { return p2; }
+        }
+        /// <summary>
+        /// Simple way to get the second point needed to draw a line of walls
+        /// </summary>
+        public int id
+        {
+            get { return ID; }
         }
     }
 }

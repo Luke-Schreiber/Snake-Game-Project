@@ -30,6 +30,7 @@ namespace SnakeGame
         {
             clients = new Dictionary<long, SocketState>();
             serverWorld = new World();
+            wallSettings = "";
         }
 
         public void StartServer()
@@ -47,11 +48,12 @@ namespace SnakeGame
             {
                 reader = XmlReader.Create("../../../settings.xml");
             }
-            settings = (GameSettings)ser.ReadObject(reader);
+            settings = ser.ReadObject(reader) as GameSettings;
 
             StringBuilder buildWalls = new StringBuilder();
 
-            foreach (Wall w in settings.Walls)
+            
+            foreach (Wall w in settings!.Walls!)
             {
                 buildWalls.Append(JsonConvert.SerializeObject(w) + "\n");
                 serverWorld.addWall(w);
@@ -116,7 +118,7 @@ namespace SnakeGame
 
             state.OnNetworkAction = CommandRequest;
 
-            string startUp = "" + state.ID + "\n" + settings.UniverseSize + "\n" + wallSettings;
+            string startUp = "" + state.ID + "\n" + settings!.UniverseSize + "\n" + wallSettings;
 
             state.TheSocket.Send(Encoding.ASCII.GetBytes(startUp.ToString()));
 
@@ -230,7 +232,7 @@ namespace SnakeGame
             watch.Start();
             while (true)
             {
-                while(watch.ElapsedMilliseconds < settings.MSPerFrame)
+                while(watch.ElapsedMilliseconds < settings!.MSPerFrame)
                 {}
                 watch.Restart();
                 Update();

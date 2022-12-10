@@ -21,7 +21,7 @@ namespace Server
         [DataMember(Order = 3)]
         public int UniverseSize = 2000;
         [DataMember(Order = 4)]
-        public List<Wall>? Walls;
+        public List<Wall> Walls = new List<Wall>();
         [DataMember(Order = 5)]
         public int snakeSpeed = 3;
         [DataMember(Order = 6)]
